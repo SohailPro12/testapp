@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer' as devtools show log;
 import 'package:testapp/utilities/show_error_dialog.dart';
 import 'package:testapp/constants/routes.dart';
 
@@ -60,19 +59,44 @@ class _RegisterViewState extends State<RegisterView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                final userCredential = await FirebaseAuth.instance
-                    .createUserWithEmailAndPassword(
-                        email: email, password: password);
-
-                devtools.log(userCredential.toString());
+                await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                    email: email, password: password);
+                final user = FirebaseAuth.instance.currentUser;
+                await user?.sendEmailVerification();
+                // ignore: use_build_context_synchronously
+                Navigator.of(context).pushNamed(verifyemailRoute);
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'weak-password') {
-                  devtools.log("Weak password");
+                  // ignore: use_build_context_synchronously
+                  await showErrorDialog(
+                    context,
+                    'Weak password',
+                  );
                 } else if (e.code == 'email-already-in-use') {
-                  devtools.log("Email is already in use");
+                  // ignore: use_build_context_synchronously
+                  await showErrorDialog(
+                    context,
+                    'Email is already in use',
+                  );
                 } else if (e.code == 'invalid-email') {
-                  devtools.log("Invalid Email");
+                  // ignore: use_build_context_synchronously
+                  await showErrorDialog(
+                    context,
+                    'Invalid Email',
+                  );
+                } else {
+                  // ignore: use_build_context_synchronously
+                  await showErrorDialog(
+                    context,
+                    'Error: ${e.code}',
+                  );
                 }
+              } catch (e) {
+                // ignore: use_build_context_synchronously
+                await showErrorDialog(
+                  context,
+                  e.toString(),
+                );
               }
             },
             child: const Text('Registre'),
