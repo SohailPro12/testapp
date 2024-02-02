@@ -93,6 +93,12 @@ class _LoginViewState extends State<LoginView> {
                     context,
                     'Please complete all the required informations',
                   );
+                } else if (e.code == 'network-request-failed') {
+                  // ignore: use_build_context_synchronously
+                  await showErrorDialog(
+                    context,
+                    'Please check your network',
+                  );
                 } else {
                   // ignore: use_build_context_synchronously
                   await showErrorDialog(
