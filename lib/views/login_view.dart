@@ -1,6 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:testapp/constants/routes.dart';
+import 'package:testapp/services/auth/auth_exceptions.dart';
+import 'package:testapp/services/auth/auth_service.dart';
 import 'package:testapp/utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
@@ -60,12 +61,14 @@ class _LoginViewState extends State<LoginView> {
               final password = _password.text;
 
               try {
-                await FirebaseAuth.instance.signInWithEmailAndPassword(
+                await AuthService.firebase()
+                    .logIn(email: email, password: password);
+                (
                   email: email,
                   password: password,
                 );
-                final user = FirebaseAuth.instance.currentUser;
-                if (user?.emailVerified ?? false) {
+                final user = AuthService.firebase().currentUser;
+                if (user?.isEmailVerified ?? false) {
                   // user email is verified
                   // ignore: use_build_context_synchronously
                   Navigator.of(context).pushNamedAndRemoveUntil(
@@ -74,43 +77,30 @@ class _LoginViewState extends State<LoginView> {
                   );
                 } else {
                   // user email is not verified
+                  // ignore: use_build_context_synchronously
                   Navigator.of(context).pushNamedAndRemoveUntil(
                     verifyemailRoute,
                     (route) => false,
                   );
                 }
                 // ignore: use_build_context_synchronously
-              } on FirebaseAuthException catch (e) {
-                if (e.code == 'invalid-credential') {
-                  // ignore: use_build_context_synchronously
-                  await showErrorDialog(
-                    context,
-                    'Invalid Name or Password! Please enter the right informations',
-                  );
-                } else if (e.code == 'channel-error') {
-                  // ignore: use_build_context_synchronously
-                  await showErrorDialog(
-                    context,
-                    'Please complete all the required informations',
-                  );
-                } else if (e.code == 'network-request-failed') {
-                  // ignore: use_build_context_synchronously
-                  await showErrorDialog(
-                    context,
-                    'Please check your network',
-                  );
-                } else {
-                  // ignore: use_build_context_synchronously
-                  await showErrorDialog(
-                    context,
-                    'Error: ${e.code}',
-                  );
-                }
-              } catch (e) {
+              } on UserNotFoundAuthException {
                 // ignore: use_build_context_synchronously
                 await showErrorDialog(
                   context,
-                  e.toString(),
+                  'Invalid Name or Password! Please enter the right informations',
+                );
+              } on WrongPasswordAuthException {
+                // ignore: use_build_context_synchronously
+                await showErrorDialog(
+                  context,
+                  'Please complete all the required informations',
+                );
+              } on GenericAuthException {
+                // ignore: use_build_context_synchronously
+                await showErrorDialog(
+                  context,
+                  "Authentication failed",
                 );
               }
             },
