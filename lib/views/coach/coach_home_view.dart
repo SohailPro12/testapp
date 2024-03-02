@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:testapp/constants/routes.dart';
 import 'package:testapp/enums/menu_actions.dart';
 import 'package:testapp/services/auth/auth_service.dart';
+import 'package:testapp/constants/routes.dart';
 
-class UserHomeView extends StatelessWidget {
-  final String userName;
-
-  const UserHomeView({super.key, required this.userName});
+class CoachHomeView extends StatelessWidget {
+  const CoachHomeView({Key? key}) : super(key: key);
 
   Future<bool> showLogOutDialog(BuildContext context) {
     return showDialog<bool>(
@@ -36,6 +34,7 @@ class UserHomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var userName;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
@@ -81,7 +80,7 @@ class UserHomeView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: Text(
-                'Welcom champ $userName',
+                'Welcom coach $userName',
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,

@@ -116,6 +116,7 @@ class _LoginViewState extends State<LoginView> {
                             notesRoute,
                             (route) => false,
                           );*/
+                          // ignore: use_build_context_synchronously
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
