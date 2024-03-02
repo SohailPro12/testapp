@@ -4,6 +4,7 @@ import 'package:testapp/services/auth/auth_service.dart';
 import 'package:testapp/views/additionalinfo_view.dart';
 import 'package:testapp/views/coach/coach_additional_info.dart';
 import 'package:testapp/views/login_view.dart';
+import 'package:testapp/views/normal/user_home_view.dart';
 import 'package:testapp/views/notes/new_note_view.dart';
 import 'package:testapp/views/notes/notes_view.dart';
 import 'package:testapp/views/register_view.dart';
@@ -29,6 +30,9 @@ void main() {
               fullName: '',
             ),
         newNoteRoute: (context) => const NewNoteView(),
+        iAmANormalUserRoute: (context) => const UserHomeView(
+              userName: '',
+            ),
       },
     ),
   );
@@ -47,7 +51,10 @@ class HomePage extends StatelessWidget {
             final user = AuthService.firebase().currentUser;
             if (user != null) {
               if (user.isEmailVerified) {
-                return const NotesView();
+                return const UserHomeView(
+                  userName: '',
+                );
+                //return const NotesView();
               } else {
                 return const VerifyEmailview();
               }

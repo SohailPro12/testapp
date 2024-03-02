@@ -3,6 +3,7 @@ import 'package:testapp/constants/routes.dart';
 import 'package:testapp/services/auth/auth_exceptions.dart';
 import 'package:testapp/services/auth/auth_service.dart';
 import 'package:testapp/utilities/show_error_dialog.dart';
+import 'package:testapp/views/normal/user_home_view.dart';
 
 class LoginView extends StatefulWidget {
   // ignore: use_key_in_widget_constructors
@@ -111,10 +112,16 @@ class _LoginViewState extends State<LoginView> {
                         final user = AuthService.firebase().currentUser;
                         if (user?.isEmailVerified ?? false) {
                           // ignore: use_build_context_synchronously
-                          Navigator.of(context).pushNamedAndRemoveUntil(
+                          /*Navigator.of(context).pushNamedAndRemoveUntil(
                             notesRoute,
                             (route) => false,
-                          );
+                          );*/
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    UserHomeView(userName: email),
+                              ));
                         } else {
                           // ignore: use_build_context_synchronously
                           Navigator.of(context).pushNamedAndRemoveUntil(
