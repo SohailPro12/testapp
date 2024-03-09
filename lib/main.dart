@@ -5,7 +5,7 @@ import 'package:testapp/views/additionalinfo_view.dart';
 import 'package:testapp/views/coach/coach_additional_info.dart';
 import 'package:testapp/views/login_view.dart';
 import 'package:testapp/views/normal/user_home_view.dart';
-import 'package:testapp/views/notes/new_note_view.dart';
+import 'package:testapp/views/notes/create_update_note_view.dart';
 import 'package:testapp/views/notes/notes_view.dart';
 import 'package:testapp/views/register_view.dart';
 import 'package:testapp/views/verfy_email_view.dart';
@@ -29,7 +29,7 @@ void main() {
         coachaAdditionalInfoRoute: (context) => const CoachaAdditionalInfo(
               fullName: '',
             ),
-        newNoteRoute: (context) => const NewNoteView(),
+        createOrUpdateNoteRoute: (context) => const CreateUpdateNoteView(),
         iAmANormalUserRoute: (context) => const UserHomeView(
               userName: '',
             ),

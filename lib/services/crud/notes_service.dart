@@ -1,13 +1,16 @@
-import 'dart:async';
+/* import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
+import 'package:testapp/extensions/list/filter.dart';
 import 'package:testapp/services/crud/crud_exceptions.dart';
 
 class NotesService {
   Database? _db;
 
   List<DatabaseNote> _notes = []; //list of notes
+
+  DatabaseUser? _user;
 
   static final NotesService _shared = NotesService._sharedInstance();
   NotesService._sharedInstance() {
@@ -22,14 +25,31 @@ class NotesService {
 
   late final StreamController<List<DatabaseNote>> _notesStreamController; // ui
 
-  Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
+  Stream<List<DatabaseNote>> get allNotes =>
+      _notesStreamController.stream.filter((note) {
+        final currentUser = _user;
+        if (currentUser != null) {
+          return note.userId == currentUser.id;
+        } else {
+          throw UserShouldBeSetBeforeREadingAllNotes();
+        }
+      });
 
-  Future<DatabaseUser> getOrCreateUser({required String email}) async {
+  Future<DatabaseUser> getOrCreateUser({
+    required String email,
+    bool setAsCurrentUser = true,
+  }) async {
     try {
       final user = await getUser(email: email);
+      if (setAsCurrentUser) {
+        _user = user;
+      }
       return user;
     } on CouldNotFindUser {
       final createdUser = await createUser(email: email);
+      if (setAsCurrentUser) {
+        _user = createdUser;
+      }
       return createdUser;
     } catch (_) {
       rethrow;
@@ -52,10 +72,15 @@ class NotesService {
     // make sure note exist
     await getNote(id: note.id);
 
-    final updatesCount = await db.update(notesTable, {
-      textColumn: text,
-      issyncdColumn: 0,
-    });
+    final updatesCount = await db.update(
+      notesTable,
+      {
+        textColumn: text,
+        issyncdColumn: 0,
+      },
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
 
     if (updatesCount == 0) {
       throw CouldNotFindUpdate();
@@ -332,3 +357,4 @@ const emailColumn = 'email';
 const userIdColumn = 'user_id';
 const textColumn = 'text';
 const issyncdColumn = 'is_syncd';
+ */
