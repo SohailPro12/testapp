@@ -7,6 +7,7 @@ const createOrUpdateNoteRoute = '/notes/new-note/';
 // info
 const additionalInfoRoute = '/additionalinfo';
 const coachaAdditionalInfoRoute = '/coachadditionalinfo';
+const coachProfileViewRoute = '/CoachProfileView ';
 
 //coach routes
 const iAmANormalUserRoute = '/normaluser/';

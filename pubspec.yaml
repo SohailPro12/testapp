@@ -41,6 +41,10 @@ dependencies:
   sqflite: ^2.3.2
   path_provider: ^2.1.2
   path: ^1.8.3
+  share_plus: ^7.2.2
+  image_picker: ^1.0.7
+  chewie: ^1.7.5
+  video_player: ^2.8.3
 
 dev_dependencies:
   flutter_test:

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:testapp/constants/routes.dart';
 import 'package:testapp/services/auth/auth_exceptions.dart';
 import 'package:testapp/services/auth/auth_service.dart';
+import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/utilities/dialogs/error_dialog.dart';
+import 'package:testapp/views/coach/coach_home_view.dart';
+import 'package:testapp/views/normal/user_home_view.dart';
 //import 'package:testapp/views/normal/user_home_view.dart';
 
 class LoginView extends StatefulWidget {
@@ -16,6 +19,7 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
+  final FireStoreService _fireStoreService = FireStoreService();
 
   @override
   void initState() {
@@ -111,18 +115,26 @@ class _LoginViewState extends State<LoginView> {
                         );
                         final user = AuthService.firebase().currentUser;
                         if (user?.isEmailVerified ?? false) {
-                          // ignore: use_build_context_synchronously
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                            notesRoute,
-                            (route) => false,
-                          );
-                          // ignore: use_build_context_synchronously
-                          /*Navigator.pushReplacement(
+                          final userData =
+                              await _fireStoreService.getUserData(email);
+                          final userType = userData['type'] as String;
+                          if (userType == 'coach') {
+                            // ignore: use_build_context_synchronously
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CoachHomeView(),
+                                ));
+                          } else {
+                            // ignore: use_build_context_synchronously
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
                                     UserHomeView(userName: email),
-                              ));*/
+                              ),
+                            );
+                          }
                         } else {
                           // ignore: use_build_context_synchronously
                           Navigator.of(context).pushNamedAndRemoveUntil(

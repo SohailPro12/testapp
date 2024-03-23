@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:testapp/constants/routes.dart';
 import 'package:testapp/services/auth/auth_service.dart';
+import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/views/additionalinfo_view.dart';
 import 'package:testapp/views/coach/coach_additional_info.dart';
+import 'package:testapp/views/coach/coach_home_view.dart';
+import 'package:testapp/views/coach/profile/coach_profile_view.dart';
 import 'package:testapp/views/login_view.dart';
 import 'package:testapp/views/normal/user_home_view.dart';
 import 'package:testapp/views/notes/create_update_note_view.dart';
@@ -33,6 +36,8 @@ void main() {
         iAmANormalUserRoute: (context) => const UserHomeView(
               userName: '',
             ),
+        coachProfileViewRoute: (context) => const CoachProfileView(),
+        iAmACoachRoute: (context) => CoachHomeView(),
       },
     ),
   );
@@ -49,19 +54,34 @@ class HomePage extends StatelessWidget {
         switch (snapshot.connectionState) {
           case ConnectionState.done:
             final user = AuthService.firebase().currentUser;
+            final FireStoreService fireStoreService = FireStoreService();
             if (user != null) {
               if (user.isEmailVerified) {
-                /* return const UserHomeView(
-                  userName: '',
-                );*/
-                return const NotesView();
+                return FutureBuilder<Map<String, dynamic>>(
+                    future: fireStoreService.getUserData(user.email),
+                    builder: (context, userDataSnapshot) {
+                      try {
+                        if (userDataSnapshot.connectionState ==
+                            ConnectionState.done) {
+                          final userType =
+                              userDataSnapshot.data?['type'] as String?;
+                          if (userType == 'coach') {
+                            return CoachHomeView();
+                          } else if (userType == 'normal') {
+                            return const UserHomeView(userName: "jdfs");
+                          }
+                        }
+                      } catch (_) {
+                        throw Exception("unknown user");
+                      }
+                      return const CircularProgressIndicator();
+                    });
               } else {
                 return const VerifyEmailview();
               }
             } else {
               return const LoginView();
             }
-
           default:
             return const CircularProgressIndicator();
         }

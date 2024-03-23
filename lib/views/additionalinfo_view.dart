@@ -1,8 +1,12 @@
 // ignore_for_file: unused_field
 
+//import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:testapp/constants/routes.dart';
 import 'package:testapp/services/auth/auth_service.dart';
+//import 'package:testapp/services/auth/auth_user.dart';
+import 'package:testapp/services/crud2/firestore.dart';
+//import 'package:testapp/views/register_view.dart';
 
 class AdditionalInfo extends StatefulWidget {
   const AdditionalInfo({super.key});
@@ -18,9 +22,13 @@ class _AdditionalInfoState extends State<AdditionalInfo> {
   String _selectedCountry = '';
   String _selectedSport = '';
   String _selectedLevel = 'Débutant'; // Set initial value to the first item
+  final FireStoreService myDB = FireStoreService();
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, dynamic> arguments =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final String username = arguments['username'];
     return Scaffold(
       appBar: AppBar(
         title: const Text('Additional Informations'),
@@ -121,10 +129,23 @@ class _AdditionalInfoState extends State<AdditionalInfo> {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pushNamed(
-                            coachaAdditionalInfoRoute,
-                            arguments: {'fullName': _fullName});
+                      onPressed: () async {
+                        await myDB.addAdditionalInfoUser(
+                          username,
+                          _fullName,
+                          _number,
+                          _selectedGender,
+                          _selectedCountry,
+                          _selectedSport,
+                          _selectedLevel,
+                          "coach",
+                        );
+                        // ignore: use_build_context_synchronously
+                        Navigator.of(context)
+                            .pushNamed(coachaAdditionalInfoRoute, arguments: {
+                          'username': username,
+                          'fullName': _fullName
+                        });
                       },
                       child: const Text('I am a coach'),
                     ),
@@ -132,8 +153,19 @@ class _AdditionalInfoState extends State<AdditionalInfo> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        await myDB.addAdditionalInfoUser(
+                          username,
+                          _fullName,
+                          _number,
+                          _selectedGender,
+                          _selectedCountry,
+                          _selectedSport,
+                          _selectedLevel,
+                          "normal",
+                        );
                         AuthService.firebase().sendEmailVerfication();
+                        // ignore: use_build_context_synchronously
                         Navigator.of(context).pushNamed(verifyemailRoute);
                       },
                       child: const Text('I am a normal user'),

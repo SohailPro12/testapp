@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:testapp/services/auth/auth_exceptions.dart';
 import 'package:testapp/services/auth/auth_service.dart';
+import 'package:testapp/services/crud/crud_exceptions.dart';
+import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/utilities/dialogs/error_dialog.dart';
 import 'package:testapp/constants/routes.dart';
 
@@ -17,6 +19,9 @@ class _RegisterViewState extends State<RegisterView> {
   late final TextEditingController _password = TextEditingController();
   late final TextEditingController _username = TextEditingController();
   late DateTime _dob = DateTime.now();
+  bool _usernameError = false;
+
+  final FireStoreService myDB = FireStoreService();
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
@@ -43,18 +48,18 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // White background color
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
           'Create New Account',
           style: TextStyle(
-            color: Colors.blue, // Blue header color
+            color: Colors.blue,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.transparent, // Transparent app bar
-        elevation: 0, // No shadow
-        centerTitle: true, // Center align the title
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -65,25 +70,24 @@ class _RegisterViewState extends State<RegisterView> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Image.asset(
-                  'assets/images/registerImage.jpg', // Replace 'your_image.png' with your image asset path
+                  'assets/images/registerImage.jpg',
                   height: 200,
-                  filterQuality: FilterQuality.high, // Adjust height as needed
+                  filterQuality: FilterQuality.high,
                 ),
                 const SizedBox(height: 20),
                 TextField(
                   controller: _username,
-                  style:
-                      const TextStyle(color: Colors.black), // Black text color
+                  style: const TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: 'Enter your username',
-                    hintStyle:
-                        const TextStyle(color: Colors.grey), // Grey hint color
-                    fillColor: Colors.grey[200], // Light grey background
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    fillColor: Colors.grey[200],
                     filled: true,
                     border: OutlineInputBorder(
-                      borderSide: BorderSide.none, // No border
+                      borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10.0),
                     ),
+                    errorText: _usernameError ? 'Username already taken' : null,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -92,16 +96,14 @@ class _RegisterViewState extends State<RegisterView> {
                   enableSuggestions: false,
                   autocorrect: false,
                   keyboardType: TextInputType.emailAddress,
-                  style:
-                      const TextStyle(color: Colors.black), // Black text color
+                  style: const TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: 'Enter your email',
-                    hintStyle:
-                        const TextStyle(color: Colors.grey), // Grey hint color
-                    fillColor: Colors.grey[200], // Light grey background
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    fillColor: Colors.grey[200],
                     filled: true,
                     border: OutlineInputBorder(
-                      borderSide: BorderSide.none, // No border
+                      borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                   ),
@@ -112,16 +114,14 @@ class _RegisterViewState extends State<RegisterView> {
                   obscureText: true,
                   enableSuggestions: false,
                   autocorrect: false,
-                  style:
-                      const TextStyle(color: Colors.black), // Black text color
+                  style: const TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: 'Enter your password',
-                    hintStyle:
-                        const TextStyle(color: Colors.grey), // Grey hint color
-                    fillColor: Colors.grey[200], // Light grey background
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    fillColor: Colors.grey[200],
                     filled: true,
                     border: OutlineInputBorder(
-                      borderSide: BorderSide.none, // No border
+                      borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                   ),
@@ -147,9 +147,6 @@ class _RegisterViewState extends State<RegisterView> {
                         email: email,
                         password: password,
                       );
-
-                      // ignore: use_build_context_synchronously
-                      Navigator.of(context).pushNamed(additionalInfoRoute);
                     } on WeakPasswordAuthException {
                       // ignore: use_build_context_synchronously
                       await showErrorDialog(
@@ -174,17 +171,34 @@ class _RegisterViewState extends State<RegisterView> {
                         context,
                         "Registration failed",
                       );
+                    } on UsernameAlreadyExistsException {
+                      setState(() {
+                        _usernameError = true;
+                      });
+                    }
+                    try {
+                      await myDB.addUser(_username.text, _email.text, _dob);
+
+                      // ignore: use_build_context_synchronously
+                      Navigator.of(context).pushNamed(
+                        additionalInfoRoute,
+                        arguments: {'username': _username.text},
+                      );
+                    } on UsernameAlreadyExistsException {
+                      setState(() {
+                        _usernameError = true;
+                      });
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // Blue button color
+                    backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                   ),
                   child: const Text(
                     'Sign up',
-                    style: TextStyle(color: Colors.white), // White text color
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -195,8 +209,7 @@ class _RegisterViewState extends State<RegisterView> {
                   },
                   child: const Text(
                     "Already have an account?",
-                    style: TextStyle(
-                        color: Colors.lightBlue), // Light blue text color
+                    style: TextStyle(color: Colors.lightBlue),
                   ),
                 )
               ],

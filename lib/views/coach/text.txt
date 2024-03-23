@@ -1,0 +1,5 @@
+
+  final FireStoreService _fireStoreService = FireStoreService();
+
+final userData =await _fireStoreService.getUserData(email);
+                          final userType = userData['type'] as String;
