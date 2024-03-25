@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:testapp/services/crud2/firestore.dart';
+import 'package:testapp/views/coach/profile/edit_bio_view.dart';
 
 final FireStoreService _fireStoreService = FireStoreService();
 
 class AboutSection extends StatelessWidget {
-  const AboutSection({super.key});
+  // ignore: use_key_in_widget_constructors
+  const AboutSection({Key? key});
+
   Future<String> getBio() => _fireStoreService.getUserField('Bio');
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -25,15 +29,24 @@ class AboutSection extends StatelessWidget {
             future: getBio(),
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator(); // Show a loading indicator while waiting for the future to complete
+                return const CircularProgressIndicator();
               } else if (snapshot.hasError) {
-                return Text(
-                    'Error: ${snapshot.error}'); // Show error message if the future completes with an error
+                return Text('Error: ${snapshot.error}');
               } else {
-                return Text(
-                  snapshot.data ??
-                      'No bio available', // Use the data from the future, or a default message if data is null
-                  style: const TextStyle(color: Colors.black),
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            EditBioScreen(initialBio: snapshot.data ?? ''),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    snapshot.data ?? 'No bio available',
+                    style: const TextStyle(color: Colors.black),
+                  ),
                 );
               }
             },

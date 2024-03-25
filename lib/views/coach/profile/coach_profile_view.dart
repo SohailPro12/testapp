@@ -1,6 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/views/coach/profile/about.dart';
 import 'package:testapp/views/coach/profile/contact.dart';
+import 'package:testapp/views/coach/profile/utils.dart';
 
 class CoachProfileView extends StatefulWidget {
   const CoachProfileView({super.key});
@@ -8,6 +13,8 @@ class CoachProfileView extends StatefulWidget {
   @override
   State<CoachProfileView> createState() => _CoachProfileViewState();
 }
+
+final FireStoreService _fireStoreService = FireStoreService();
 
 class _CoachProfileViewState extends State<CoachProfileView> {
   List<Tab> tabs = [
@@ -62,27 +69,56 @@ class _CoachProfileViewState extends State<CoachProfileView> {
   }
 
   Padding hobbies() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 5.0),
-      child: Text(
-        "Traveller - Dreamer - Fighter",
-        style: TextStyle(
-          fontWeight: FontWeight.normal,
-          fontSize: 12,
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
+      child: FutureBuilder<String>(
+        future: Future.wait([
+          _fireStoreService.getUserField('Domain'),
+          _fireStoreService.getUserField('type')
+        ]).then((results) => results.join(' ')),
+        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator(); // Show a loading indicator while waiting
+          } else if (snapshot.hasError) {
+            return Text(
+                'Error: ${snapshot.error}'); // Show error message if any
+          } else {
+            return Text(
+              snapshot.data ??
+                  'Experties not defined yet', // Use the data if available, or a default message
+              style: const TextStyle(
+                fontWeight: FontWeight.normal,
+                fontSize: 12,
+              ),
+            );
+          }
+        },
       ),
     );
   }
 
   Padding profileName() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 5.0),
-      child: Text(
-        "Asep Saputra",
-        style: TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.bold,
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
+      child: FutureBuilder<String>(
+        future: _fireStoreService.getUserField('full_name'),
+        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator(); // Show a loading indicator while waiting
+          } else if (snapshot.hasError) {
+            return Text(
+                'Error: ${snapshot.error}'); // Show error message if any
+          } else {
+            return Text(
+              snapshot.data ??
+                  'No name', // Use the data if available, or a default message
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+            );
+          }
+        },
       ),
     );
   }
@@ -117,6 +153,30 @@ class _CoachProfileViewState extends State<CoachProfileView> {
     );
   }
 
+  Uint8List? _image;
+  void selectImage() async {
+    final Uint8List? img = await pickImage(ImageSource.gallery);
+    if (img != null) {
+      setState(() {
+        _image = img;
+      });
+      final username = await _fireStoreService.getUserField('full_name');
+      try {
+        await _fireStoreService.updateUserPhoto(
+            username, img); // Update user's profile photo
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile photo updated successfully')),
+        );
+      } catch (e) {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update profile photo: $e')),
+        );
+      }
+    }
+  }
+
   Container profilePhotos() {
     return Container(
       decoration: const BoxDecoration(
@@ -126,13 +186,28 @@ class _CoachProfileViewState extends State<CoachProfileView> {
       width: 105,
       height: 105,
       alignment: Alignment.center,
-      child: const CircleAvatar(
-        radius: 50,
-        backgroundColor: Colors.transparent,
-        backgroundImage: NetworkImage(
-          "https://picsum.photos/300/300",
-        ),
-      ),
+      child: Stack(children: [
+        _image != null
+            ? CircleAvatar(
+                radius: 64,
+                backgroundImage: MemoryImage(_image!),
+              )
+            : const CircleAvatar(
+                radius: 50,
+                backgroundColor: Colors.transparent,
+                backgroundImage: NetworkImage(
+                  "https://picsum.photos/300/300",
+                ),
+              ),
+        Positioned(
+          bottom: -10,
+          left: 60,
+          child: IconButton(
+            onPressed: selectImage,
+            icon: const Icon(Icons.add_a_photo),
+          ),
+        )
+      ]),
     );
   }
 }

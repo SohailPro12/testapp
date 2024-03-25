@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:testapp/services/auth/auth_service.dart';
 import 'package:testapp/services/crud/crud_exceptions.dart';
@@ -125,15 +127,22 @@ class FireStoreService {
   }
 
 //update
-  Future<void> updateUserField(String fieldName, String value) async {
+  Future<void> updateUserField(
+      String username, String fieldName, String value) async {
     final user = AuthService.firebase().currentUser;
     if (user == null) {
       throw UserNotFoundException();
     }
-    await users.doc(user.email).update({
+    await users.doc(username).update({
       fieldName: value,
     });
   }
+
+  Future<void> updateUserPhoto(String username, Uint8List photo) async {
+    final userDoc = users.doc(username);
+    await userDoc.set({'profile_photo': photo}, SetOptions(merge: true));
+  }
+
   // Read
   /*Stream<QuerySnapshot> getUsersStream() {
     final usersStream = users.orderBy('date_registered', descending: true).snapshots();
