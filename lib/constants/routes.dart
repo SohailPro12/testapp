@@ -12,3 +12,8 @@ const coachProfileViewRoute = '/CoachProfileView ';
 //coach routes
 const iAmANormalUserRoute = '/normaluser/';
 const iAmACoachRoute = '/coach/';
+
+// user routes
+const routineuser = '/WeeklyPlanner/';
+const profiluser = '/UserProfile /';
+const userProfileViewRoute = '/CoachProfile /';

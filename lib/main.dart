@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+//import 'package:path/path.dart';
 import 'package:testapp/constants/routes.dart';
 import 'package:testapp/services/auth/auth_service.dart';
 import 'package:testapp/services/crud2/firestore.dart';
@@ -7,6 +8,8 @@ import 'package:testapp/views/coach/coach_additional_info.dart';
 import 'package:testapp/views/coach/coach_home_view.dart';
 import 'package:testapp/views/coach/profile/coach_profile_view.dart';
 import 'package:testapp/views/login_view.dart';
+import 'package:testapp/views/normal/ma_routine.dart';
+import 'package:testapp/views/normal/profile/user_profile_view.dart';
 import 'package:testapp/views/normal/user_home_view.dart';
 import 'package:testapp/views/notes/create_update_note_view.dart';
 import 'package:testapp/views/notes/notes_view.dart';
@@ -18,28 +21,27 @@ void main() {
       .ensureInitialized(); // ensure that the button is initialized
   runApp(
     MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const HomePage(),
-      routes: {
-        loginRoute: (context) => const LoginView(),
-        registerRoute: (context) => const RegisterView(),
-        notesRoute: (context) => const NotesView(),
-        verifyemailRoute: (context) => const VerifyEmailview(),
-        additionalInfoRoute: (context) => const AdditionalInfo(),
-        coachaAdditionalInfoRoute: (context) => const CoachaAdditionalInfo(
-              fullName: '',
-            ),
-        createOrUpdateNoteRoute: (context) => const CreateUpdateNoteView(),
-        iAmANormalUserRoute: (context) => const UserHomeView(
-              userName: '',
-            ),
-        coachProfileViewRoute: (context) => const CoachProfileView(),
-        iAmACoachRoute: (context) => CoachHomeView(),
-      },
-    ),
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const HomePage(),
+        routes: {
+          loginRoute: (context) => const LoginView(),
+          registerRoute: (context) => const RegisterView(),
+          notesRoute: (context) => const NotesView(),
+          verifyemailRoute: (context) => const VerifyEmailview(),
+          additionalInfoRoute: (context) => const AdditionalInfo(),
+          coachaAdditionalInfoRoute: (context) => const CoachaAdditionalInfo(
+                fullName: '',
+              ),
+          createOrUpdateNoteRoute: (context) => const CreateUpdateNoteView(),
+          iAmANormalUserRoute: (context) => UserHomeView(),
+          coachProfileViewRoute: (context) => const CoachProfileView(),
+          iAmACoachRoute: (context) => CoachHomeView(),
+          routineuser: (context) => const WeeklyPlanner(),
+          userProfileViewRoute: (context) => const UserProfileView(),
+        }),
   );
 }
 
@@ -68,7 +70,7 @@ class HomePage extends StatelessWidget {
                           if (userType == 'coach') {
                             return CoachHomeView();
                           } else if (userType == 'normal') {
-                            return const UserHomeView(userName: "jdfs");
+                            return UserHomeView();
                           }
                         }
                       } catch (_) {

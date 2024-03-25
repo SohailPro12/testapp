@@ -6,8 +6,7 @@ import 'package:testapp/services/crud2/firestore.dart';
 class CoachaAdditionalInfo extends StatefulWidget {
   final String fullName;
 
-  const CoachaAdditionalInfo({Key? key, required this.fullName})
-      : super(key: key);
+  const CoachaAdditionalInfo({super.key, required this.fullName});
 
   @override
   State<CoachaAdditionalInfo> createState() => _CoachaAdditionalInfoState();
@@ -139,6 +138,7 @@ class _CoachaAdditionalInfoState extends State<CoachaAdditionalInfo> {
                     _bio, // Pass bio parameter
                   );
                   AuthService.firebase().sendEmailVerfication();
+                  // ignore: use_build_context_synchronously
                   Navigator.of(context).pushNamed(verifyemailRoute);
                 },
                 child: const Text('Let\'s go!'),

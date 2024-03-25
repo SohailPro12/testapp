@@ -150,24 +150,28 @@ class _RegisterViewState extends State<RegisterView> {
                     } on WeakPasswordAuthException {
                       // ignore: use_build_context_synchronously
                       await showErrorDialog(
+                        // ignore: use_build_context_synchronously
                         context,
                         'Weak password',
                       );
                     } on EmailAlreadyInUseAuthException {
                       // ignore: use_build_context_synchronously
                       await showErrorDialog(
+                        // ignore: use_build_context_synchronously
                         context,
                         'Email is already in use',
                       );
                     } on InvalidEmailAuthException {
                       // ignore: use_build_context_synchronously
                       await showErrorDialog(
+                        // ignore: use_build_context_synchronously
                         context,
                         'Invalid Email',
                       );
                     } on GenericAuthException {
                       // ignore: use_build_context_synchronously
                       await showErrorDialog(
+                        // ignore: use_build_context_synchronously
                         context,
                         "Registration failed",
                       );

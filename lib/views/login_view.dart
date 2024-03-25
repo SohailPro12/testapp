@@ -121,6 +121,7 @@ class _LoginViewState extends State<LoginView> {
                           if (userType == 'coach') {
                             // ignore: use_build_context_synchronously
                             Navigator.pushReplacement(
+                                // ignore: use_build_context_synchronously
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => CoachHomeView(),
@@ -128,10 +129,10 @@ class _LoginViewState extends State<LoginView> {
                           } else {
                             // ignore: use_build_context_synchronously
                             Navigator.pushReplacement(
+                              // ignore: use_build_context_synchronously
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    UserHomeView(userName: email),
+                                builder: (context) => UserHomeView(),
                               ),
                             );
                           }
@@ -145,18 +146,21 @@ class _LoginViewState extends State<LoginView> {
                       } on UserNotFoundAuthException {
                         // ignore: use_build_context_synchronously
                         await showErrorDialog(
+                          // ignore: use_build_context_synchronously
                           context,
                           'Invalid Name or Password! Please enter the right information.',
                         );
                       } on WrongPasswordAuthException {
                         // ignore: use_build_context_synchronously
                         await showErrorDialog(
+                          // ignore: use_build_context_synchronously
                           context,
                           'Please complete all the required information.',
                         );
                       } on GenericAuthException {
                         // ignore: use_build_context_synchronously
                         await showErrorDialog(
+                          // ignore: use_build_context_synchronously
                           context,
                           "Authentication failed",
                         );
