@@ -156,26 +156,14 @@ class _CoachProfileViewState extends State<CoachProfileView> {
   Uint8List? _image;
   void selectImage() async {
     final Uint8List? img = await pickImage(ImageSource.gallery);
-    if (img != null) {
-      setState(() {
-        _image = img;
-      });
-      final username = await _fireStoreService.getUserField('full_name');
-      try {
-        await _fireStoreService.updateUserPhoto(
-            username, img); // Update user's profile photo
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile photo updated successfully')),
-        );
-      } catch (e) {
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update profile photo: $e')),
-        );
-      }
-    }
+
+    setState(() {
+      _image = img;
+      saveProfileImage();
+    });
   }
+
+  void saveProfileImage() async {}
 
   Container profilePhotos() {
     return Container(
