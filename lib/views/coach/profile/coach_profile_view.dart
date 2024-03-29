@@ -160,6 +160,7 @@ class _CoachProfileViewState extends State<CoachProfileView> {
     setState(() {
       _image = img;
       saveProfileImage();
+      /* ajfdsaf */
     });
   }
 
