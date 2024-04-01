@@ -126,6 +126,20 @@ class FireStoreService {
     }
   }
 
+  Future<String> getUserFieldByUsername(
+      String fieldName, String username) async {
+    final querySnapshot =
+        await users.where('username', isEqualTo: username).get();
+    if (querySnapshot.docs.isNotEmpty) {
+      final userData = querySnapshot.docs.first.data();
+      final fieldValue =
+          (userData as Map<String, dynamic>)[fieldName]?.toString() ?? '';
+      return fieldValue;
+    } else {
+      throw UserNotFoundException();
+    }
+  }
+
 //update
   Future<void> updateUserField(
       String username, String fieldName, String value) async {

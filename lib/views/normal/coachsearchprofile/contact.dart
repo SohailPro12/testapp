@@ -2,24 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:testapp/services/crud2/firestore.dart';
 
 class ContactSection extends StatelessWidget {
-  const ContactSection({super.key});
+  final String username;
+
+  const ContactSection({Key? key, required this.username}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const ContactView();
+    return ContactView(username: username);
   }
 }
 
 class ContactView extends StatelessWidget {
-  const ContactView({super.key});
+  final String username;
+
+  const ContactView({Key? key, required this.username}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const ContactDetail(),
+        ContactDetail(username: username),
         FutureBuilder<String>(
-          future: _fireStoreService.getUserField('country'),
+          future: _fireStoreService.getUserFieldByUsername(
+              'Availability', username),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator(); // Show loading indicator while waiting
@@ -39,7 +44,7 @@ class ContactView extends StatelessWidget {
 class ContactStatus extends StatelessWidget {
   final String status;
 
-  const ContactStatus({super.key, required this.status});
+  const ContactStatus({Key? key, required this.status}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +56,7 @@ class ContactStatus extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.info_outline, color: Colors.blueGrey),
             title: const Text(
-              "Country",
+              "Availability",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Text(
@@ -69,14 +74,20 @@ class ContactStatus extends StatelessWidget {
 final FireStoreService _fireStoreService = FireStoreService();
 
 class ContactDetail extends StatelessWidget {
-  const ContactDetail({super.key});
+  final String username;
+
+  const ContactDetail({Key? key, required this.username}) : super(key: key);
 
   Future<String> getPhoneNumber() =>
-      _fireStoreService.getUserField('phone_number');
-  Future<String> getEmail() => _fireStoreService.getUserField('email');
-  Future<String> getFavoritSport() =>
-      _fireStoreService.getUserField('favorite_sport');
-  Future<String> getLevel() => _fireStoreService.getUserField('level');
+      _fireStoreService.getUserFieldByUsername('phone_number', username);
+  Future<String> getEmail() =>
+      _fireStoreService.getUserFieldByUsername('email', username);
+  Future<String> getWebsite() =>
+      _fireStoreService.getUserFieldByUsername('Website', username);
+  Future<String> getStatus() =>
+      _fireStoreService.getUserFieldByUsername('Availability', username);
+  Future<String> getDomain() =>
+      _fireStoreService.getUserFieldByUsername('Domain', username);
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +148,7 @@ class ContactDetail extends StatelessWidget {
               },
             ),
             FutureBuilder<String>(
-              future: getFavoritSport(),
+              future: getDomain(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator(); // Show loading indicator while waiting
@@ -149,7 +160,7 @@ class ContactDetail extends StatelessWidget {
                     leading: const Icon(Icons.fitness_center,
                         color: Colors.blueGrey),
                     title: const Text(
-                      "Favorit Sport",
+                      "Domain",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
@@ -162,7 +173,7 @@ class ContactDetail extends StatelessWidget {
               },
             ),
             FutureBuilder<String>(
-              future: getLevel(),
+              future: getWebsite(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const CircularProgressIndicator(); // Show loading indicator while waiting
@@ -174,7 +185,7 @@ class ContactDetail extends StatelessWidget {
                     leading:
                         const Icon(Icons.web_asset, color: Colors.blueGrey),
                     title: const Text(
-                      "Level",
+                      "Website",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(

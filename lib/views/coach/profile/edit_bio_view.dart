@@ -92,7 +92,7 @@ class _EditBioScreenState extends State<EditBioScreen> {
     setState(() {
       _isLoading = true;
     });
-    final username = await _fireStoreService.getUserField('full_name');
+    final username = await _fireStoreService.getUserField('username');
     try {
       await _fireStoreService.updateUserField(
           username, 'Bio', _bioController.text);

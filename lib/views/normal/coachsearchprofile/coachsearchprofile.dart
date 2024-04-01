@@ -1,78 +1,62 @@
 import 'dart:typed_data';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:share_plus/share_plus.dart'; // Import the share_plus package
+import 'package:share_plus/share_plus.dart';
 import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/services/crud2/storage.dart';
-import 'package:testapp/views/coach/profile/utils.dart';
-import 'package:testapp/views/normal/profile/about.dart';
-import 'package:testapp/views/normal/profile/contact.dart';
+import 'package:testapp/views/normal/coachsearchprofile/about.dart';
+import 'package:testapp/views/normal/coachsearchprofile/contact.dart';
 
-class UserProfileView extends StatefulWidget {
-  // ignore: use_key_in_widget_constructors
-  const UserProfileView({Key? key});
+class RequiredUsernameProfileView extends StatefulWidget {
+  final String username;
+
+  const RequiredUsernameProfileView({super.key, required this.username});
 
   @override
-  State<UserProfileView> createState() => _UserProfileViewState();
+  State<RequiredUsernameProfileView> createState() =>
+      _RequiredUsernameProfileViewState();
 }
 
 final FireStoreService _fireStoreService = FireStoreService();
 
-class _UserProfileViewState extends State<UserProfileView> {
-  List<Tab> tabs = [
-    const Tab(
-      text: "About",
-      icon: Icon(Icons.account_box),
-    ),
-    const Tab(
-      text: "Contact",
-      icon: Icon(Icons.contact_page),
-    ),
-  ];
+class _RequiredUsernameProfileViewState
+    extends State<RequiredUsernameProfileView> {
+  late String _username;
+  String? _profileImageUrl;
 
   @override
   void initState() {
     super.initState();
+    _username = widget.username;
     loadProfileImage();
   }
 
-  String? _profileImageUrl;
-
   void loadProfileImage() async {
-    String username = await _fireStoreService.getUserField('username');
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('userProfile')
-        .where('username', isEqualTo: username)
-        .where('datatype',
-            isEqualTo: 'profilePicture') // Update datatype to 'profilePicture'
-        .get();
-
-    if (querySnapshot.docs.isNotEmpty) {
+    try {
+      String fieldValue = await _fireStoreService.getUserFieldByUsername(
+          'profilePicture', _username);
       setState(() {
-        _profileImageUrl = querySnapshot.docs.first.get('url');
+        _profileImageUrl = fieldValue;
       });
+    } catch (e) {
+      print('Error: $e');
     }
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     return FutureBuilder<String>(
-      future: _fireStoreService.getUserField('username'),
+      future: Future.value(_username),
       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator(); // Show a loading indicator while waiting
+          return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}'); // Show error message if any
+          return Text('Error: ${snapshot.error}');
         } else {
-          String username = snapshot.data ??
-              ''; // Use the data if available, or a default value
-          String profileUrl = 'https://fitme.com/profile/$username';
+          String profileUrl = 'https://fitme.com/profile/$_username';
 
           return DefaultTabController(
-            length: tabs.length,
+            length: 2,
             child: Scaffold(
               appBar: AppBar(
                 backgroundColor: const Color.fromARGB(255, 200, 202, 70),
@@ -93,8 +77,11 @@ class _UserProfileViewState extends State<UserProfileView> {
                     stats(),
                   ],
                 ),
-                bottom: TabBar(
-                  tabs: tabs,
+                bottom: const TabBar(
+                  tabs: [
+                    Tab(text: "About", icon: Icon(Icons.account_box)),
+                    Tab(text: "Contact", icon: Icon(Icons.contact_page)),
+                  ],
                   indicatorColor: Colors.white,
                   indicatorSize: TabBarIndicatorSize.tab,
                 ),
@@ -107,10 +94,10 @@ class _UserProfileViewState extends State<UserProfileView> {
                   ),
                 ],
               ),
-              body: const TabBarView(
+              body: TabBarView(
                 children: [
-                  AboutSection(),
-                  ContactSection(),
+                  AboutSection(username: _username),
+                  ContactSection(username: _username),
                 ],
               ),
             ),
@@ -124,20 +111,15 @@ class _UserProfileViewState extends State<UserProfileView> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: FutureBuilder<String>(
-        future: Future.wait([
-          _fireStoreService.getUserField('favorite_sport'),
-          _fireStoreService.getUserField('level')
-        ]).then((results) => results.join(' ')),
+        future: _fireStoreService.getUserFieldByUsername('Domain', _username),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator(); // Show a loading indicator while waiting
+            return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
-            return Text(
-                'Error: ${snapshot.error}'); // Show error message if any
+            return Text('Error: ${snapshot.error}');
           } else {
             return Text(
-              snapshot.data ??
-                  'Experties not defined yet', // Use the data if available, or a default message
+              snapshot.data ?? 'Experties not defined yet',
               style: const TextStyle(
                 fontWeight: FontWeight.normal,
                 fontSize: 12,
@@ -153,17 +135,16 @@ class _UserProfileViewState extends State<UserProfileView> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: FutureBuilder<String>(
-        future: _fireStoreService.getUserField('full_name'),
+        future:
+            _fireStoreService.getUserFieldByUsername('full_name', _username),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator(); // Show a loading indicator while waiting
+            return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
-            return Text(
-                'Error: ${snapshot.error}'); // Show error message if any
+            return Text('Error: ${snapshot.error}');
           } else {
             return Text(
-              snapshot.data ??
-                  'No name', // Use the data if available, or a default message
+              snapshot.data ?? 'No name',
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
@@ -179,8 +160,9 @@ class _UserProfileViewState extends State<UserProfileView> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        statsColumn("Streak", "160"),
-        statsColumn("Following", "1657"),
+        statsColumn("Photos", "160"),
+        statsColumn("Followers", "1657"),
+        statsColumn("Customer", "9"),
       ],
     );
   }
@@ -207,7 +189,8 @@ class _UserProfileViewState extends State<UserProfileView> {
   Uint8List? _image;
 
   void selectImage() async {
-    final Uint8List? img = await pickImage(ImageSource.gallery);
+    final Uint8List? img = await ImagePicker()
+        .pickImage(source: ImageSource.gallery) as Uint8List?;
 
     setState(() {
       _image = img;
@@ -216,14 +199,12 @@ class _UserProfileViewState extends State<UserProfileView> {
   }
 
   void saveProfileImage() async {
-    String username = await _fireStoreService.getUserField('username');
     String resp = await StorageService().saveData(
-      username: username,
+      username: _username,
       datatype: "profilePicture",
       file: _image!,
     );
 
-    // Refresh profile image after saving
     if (resp == "the data was saved successfully") {
       loadProfileImage();
     }

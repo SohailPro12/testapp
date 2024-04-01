@@ -1,14 +1,19 @@
 import 'dart:typed_data';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:testapp/services/crud2/firestore.dart';
+import 'package:testapp/services/crud2/storage.dart';
 import 'package:testapp/views/coach/profile/about.dart';
 import 'package:testapp/views/coach/profile/contact.dart';
 import 'package:testapp/views/coach/profile/utils.dart';
 
 class CoachProfileView extends StatefulWidget {
-  const CoachProfileView({super.key});
+  final String? username;
+
+  const CoachProfileView({super.key, this.username});
 
   @override
   State<CoachProfileView> createState() => _CoachProfileViewState();
@@ -17,54 +22,103 @@ class CoachProfileView extends StatefulWidget {
 final FireStoreService _fireStoreService = FireStoreService();
 
 class _CoachProfileViewState extends State<CoachProfileView> {
-  List<Tab> tabs = [
-    const Tab(
-      text: "About",
-      icon: Icon(Icons.account_box),
-    ),
-    const Tab(
-      text: "Contact",
-      icon: Icon(Icons.contact_page),
-    ),
-  ];
+  late String _username;
+  String? _profileImageUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _username = widget.username ?? '';
+    if (_username.isNotEmpty) {
+      loadProfileImage();
+    } else {
+      loadUsername();
+    }
+  }
+
+  void loadUsername() async {
+    String username = await _fireStoreService.getUserField('username');
+    setState(() {
+      _username = username;
+    });
+    loadProfileImage();
+  }
+
+  void loadProfileImage() async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('userProfile')
+        .where('username', isEqualTo: _username)
+        .where('datatype', isEqualTo: 'profilePicture')
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      setState(() {
+        _profileImageUrl = querySnapshot.docs.first.get('url');
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: tabs.length,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: const Color.fromARGB(255, 200, 202, 70),
-          titleTextStyle: const TextStyle(
-            color: Colors.white,
-          ),
-          toolbarHeight: 275,
-          title: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 25),
-              Center(child: profilePhotos()),
-              const SizedBox(height: 15),
-              profileName(),
-              const SizedBox(height: 5),
-              hobbies(),
-              const SizedBox(height: 10),
-              stats(),
-            ],
-          ),
-          bottom: TabBar(
-            tabs: tabs,
-            indicatorColor: Colors.white,
-            indicatorSize: TabBarIndicatorSize.tab,
-          ),
-        ),
-        body: const TabBarView(
-          children: [
-            AboutSection(),
-            ContactSection(),
-          ],
-        ),
-      ),
+    return FutureBuilder<String>(
+      future: Future.value(_username),
+      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          String profileUrl = 'https://fitme.com/profile/$_username';
+
+          return DefaultTabController(
+            length: 2,
+            child: Scaffold(
+              appBar: AppBar(
+                backgroundColor: const Color.fromARGB(255, 200, 202, 70),
+                titleTextStyle: const TextStyle(
+                  color: Colors.white,
+                ),
+                toolbarHeight: 275,
+                title: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 25),
+                    Center(child: profilePhotos()),
+                    const SizedBox(height: 15),
+                    profileName(),
+                    const SizedBox(height: 5),
+                    hobbies(),
+                    const SizedBox(height: 10),
+                    stats(),
+                  ],
+                ),
+                bottom: const TabBar(
+                  tabs: [
+                    Tab(text: "About", icon: Icon(Icons.account_box)),
+                    Tab(text: "Contact", icon: Icon(Icons.contact_page)),
+                  ],
+                  indicatorColor: Colors.white,
+                  indicatorSize: TabBarIndicatorSize.tab,
+                ),
+                actions: [
+                  IconButton(
+                    onPressed: () {
+                      Share.share(profileUrl);
+                    },
+                    icon: const Icon(Icons.share),
+                  ),
+                ],
+              ),
+              body: const TabBarView(
+                children: [
+                  AboutSection(),
+                  ContactSection(),
+                ],
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -78,14 +132,12 @@ class _CoachProfileViewState extends State<CoachProfileView> {
         ]).then((results) => results.join(' ')),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator(); // Show a loading indicator while waiting
+            return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
-            return Text(
-                'Error: ${snapshot.error}'); // Show error message if any
+            return Text('Error: ${snapshot.error}');
           } else {
             return Text(
-              snapshot.data ??
-                  'Experties not defined yet', // Use the data if available, or a default message
+              snapshot.data ?? 'Experties not defined yet',
               style: const TextStyle(
                 fontWeight: FontWeight.normal,
                 fontSize: 12,
@@ -104,14 +156,12 @@ class _CoachProfileViewState extends State<CoachProfileView> {
         future: _fireStoreService.getUserField('full_name'),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator(); // Show a loading indicator while waiting
+            return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
-            return Text(
-                'Error: ${snapshot.error}'); // Show error message if any
+            return Text('Error: ${snapshot.error}');
           } else {
             return Text(
-              snapshot.data ??
-                  'No name', // Use the data if available, or a default message
+              snapshot.data ?? 'No name',
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
@@ -129,7 +179,7 @@ class _CoachProfileViewState extends State<CoachProfileView> {
       children: [
         statsColumn("Photos", "160"),
         statsColumn("Followers", "1657"),
-        statsColumn("Following", "9"),
+        statsColumn("Customer", "9"),
       ],
     );
   }
@@ -154,17 +204,27 @@ class _CoachProfileViewState extends State<CoachProfileView> {
   }
 
   Uint8List? _image;
+
   void selectImage() async {
     final Uint8List? img = await pickImage(ImageSource.gallery);
 
     setState(() {
       _image = img;
       saveProfileImage();
-      /* ajfdsaf */
     });
   }
 
-  void saveProfileImage() async {}
+  void saveProfileImage() async {
+    String resp = await StorageService().saveData(
+      username: _username,
+      datatype: "profilePicture",
+      file: _image!,
+    );
+
+    if (resp == "the data was saved successfully") {
+      loadProfileImage();
+    }
+  }
 
   Container profilePhotos() {
     return Container(
@@ -175,28 +235,28 @@ class _CoachProfileViewState extends State<CoachProfileView> {
       width: 105,
       height: 105,
       alignment: Alignment.center,
-      child: Stack(children: [
-        _image != null
-            ? CircleAvatar(
-                radius: 64,
-                backgroundImage: MemoryImage(_image!),
-              )
-            : const CircleAvatar(
-                radius: 50,
-                backgroundColor: Colors.transparent,
-                backgroundImage: NetworkImage(
-                  "https://picsum.photos/300/300",
+      child: Stack(
+        children: [
+          _profileImageUrl != null
+              ? CircleAvatar(
+                  radius: 64,
+                  backgroundImage: NetworkImage(_profileImageUrl!),
+                )
+              : const CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.transparent,
+                  backgroundImage: AssetImage('assets/images/nopp.jpeg'),
                 ),
-              ),
-        Positioned(
-          bottom: -10,
-          left: 60,
-          child: IconButton(
-            onPressed: selectImage,
-            icon: const Icon(Icons.add_a_photo),
-          ),
-        )
-      ]),
+          Positioned(
+            bottom: -10,
+            left: 60,
+            child: IconButton(
+              onPressed: selectImage,
+              icon: const Icon(Icons.add_a_photo),
+            ),
+          )
+        ],
+      ),
     );
   }
 }

@@ -5,10 +5,12 @@ import 'package:testapp/views/coach/profile/edit_bio_view.dart';
 final FireStoreService _fireStoreService = FireStoreService();
 
 class AboutSection extends StatelessWidget {
-  // ignore: use_key_in_widget_constructors
-  const AboutSection({Key? key});
+  final String username;
 
-  Future<String> getBio() => _fireStoreService.getUserField('Bio');
+  const AboutSection({Key? key, required this.username}) : super(key: key);
+
+  Future<String> getBio() =>
+      _fireStoreService.getUserFieldByUsername('Bio', username);
 
   @override
   Widget build(BuildContext context) {

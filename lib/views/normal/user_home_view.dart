@@ -3,6 +3,8 @@ import 'package:testapp/enums/menu_actions.dart';
 import 'package:testapp/services/auth/auth_service.dart';
 import 'package:testapp/constants/routes.dart';
 import 'package:testapp/services/crud2/firestore.dart';
+import 'package:testapp/services/crud2/storage.dart';
+import 'package:testapp/views/normal/coaches_list.dart';
 
 class UserHomeView extends StatelessWidget {
   UserHomeView({super.key});
@@ -34,130 +36,154 @@ class UserHomeView extends StatelessWidget {
   }
 
   final FireStoreService _fireStoreService = FireStoreService();
+  final StorageService _storageService = StorageService();
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String>(
-      future: _fireStoreService.getUserField('full_name'),
-      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+    return FutureBuilder<List<dynamic>>(
+      future: Future.wait([
+        _fireStoreService.getUserField('full_name'),
+        _fireStoreService.getUserField('username'), // Fetching username
+      ]),
+      builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator(); // Show a loading indicator while waiting for the future to complete
         } else if (snapshot.hasError) {
           return Text(
               'Error: ${snapshot.error}'); // Show an error message if the future completes with an error
         } else {
-          final String fullName = snapshot.data!;
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('Home'),
-              backgroundColor: const Color.fromARGB(255, 222, 243, 33),
-              actions: [
-                const CircleAvatar(
-                  // Assuming you have a user profile picture
-                  backgroundImage:
-                      AssetImage('assets/images/profile_picture.jpeg'),
-                ),
-                PopupMenuButton<MenuAction>(
-                  onSelected: (value) async {
-                    switch (value) {
-                      case MenuAction.logout:
-                        final shouldLogout = await showLogOutDialog(context);
-                        if (shouldLogout) {
-                          AuthService.firebase().logOut();
-                          // ignore: use_build_context_synchronously
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                            loginRoute,
-                            (_) => false,
-                          );
-                        }
-                        break;
-                    }
-                  },
-                  itemBuilder: (context) {
-                    return const [
-                      PopupMenuItem<MenuAction>(
-                        value: MenuAction.logout,
-                        child: Text('Log out'),
+          final String fullName = snapshot.data![0] as String;
+          final String username = snapshot.data![1] as String;
+          return FutureBuilder<String>(
+            // Nested FutureBuilder for fetching profile image URL
+            future: _storageService.getUrlfield(username, 'url'),
+            builder: (context, imageSnapshot) {
+              if (imageSnapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator(); // Show a loading indicator while waiting for the future to complete
+              } else {
+                final String? profileImageUrl = imageSnapshot.data;
+                return Scaffold(
+                  appBar: AppBar(
+                    title: const Text('Home'),
+                    backgroundColor: const Color.fromARGB(255, 222, 243, 33),
+                    actions: [
+                      CircleAvatar(
+                        // Assuming you have a user profile picture
+                        backgroundImage: profileImageUrl != null
+                            ? NetworkImage(profileImageUrl) as ImageProvider
+                            : const AssetImage('assets/images/nopp.jpeg'),
                       ),
-                    ];
-                  },
-                ),
-              ],
-            ),
-            body: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: Text(
-                      'Welcome $fullName!',
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 175, 150,
-                            76), // Change the color to green for enthusiasm
+                      PopupMenuButton<MenuAction>(
+                        onSelected: (value) async {
+                          switch (value) {
+                            case MenuAction.logout:
+                              final shouldLogout =
+                                  await showLogOutDialog(context);
+                              if (shouldLogout) {
+                                AuthService.firebase().logOut();
+                                // ignore: use_build_context_synchronously
+                                Navigator.of(context).pushNamedAndRemoveUntil(
+                                  loginRoute,
+                                  (_) => false,
+                                );
+                              }
+                              break;
+                          }
+                        },
+                        itemBuilder: (context) {
+                          return const [
+                            PopupMenuItem<MenuAction>(
+                              value: MenuAction.logout,
+                              child: Text('Log out'),
+                            ),
+                          ];
+                        },
                       ),
-                      textAlign: TextAlign.center,
-                    ),
+                    ],
                   ),
-                  const SizedBox(height: 20),
-                  // Use individual Expanded widgets with icons
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.of(context).pushNamed(userProfileViewRoute);
-                      },
-                      icon: const Icon(Icons.person),
-                      label: const Text('View Profile'),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        //Navigator.pushNamed(context, '/coach/ma routine');
-                      },
-                      icon: const Icon(Icons.message),
-                      label: const Text('créer ma routine'),
-                    ),
-                  ),
+                  body: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Text(
+                            'Welcome $fullName!',
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 175, 150,
+                                  76), // Change the color to green for enthusiasm
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        // Use individual Expanded widgets with icons
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.of(context)
+                                  .pushNamed(userProfileViewRoute);
+                            },
+                            icon: const Icon(Icons.person),
+                            label: const Text('View Profile'),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              //Navigator.pushNamed(context, '/coach/ma routine');
+                            },
+                            icon: const Icon(Icons.message),
+                            label: const Text('créer ma routine'),
+                          ),
+                        ),
 
-                  const SizedBox(height: 20),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        // Implement navigation to routine pre
-                      },
-                      icon: const Icon(Icons.hub),
-                      label: const Text('routine prédéfinie'),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              // Implement navigation to routine pre
+                            },
+                            icon: const Icon(Icons.hub),
+                            label: const Text('routine prédéfinie'),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => CoachesListView(),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.hub),
+                            label: const Text('coach'),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              // Implement navigation to FitMe AI view (placeholder for now)
+                              // Removed the SnackBar
+                            },
+                            icon: const Icon(Icons.fitness_center),
+                            label: const Text('Explore FitMe AI'),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        // Implement navigation to check message de coach
-                      },
-                      icon: const Icon(Icons.hub),
-                      label: const Text('coach'),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        // Implement navigation to FitMe AI view (placeholder for now)
-                        // Removed the SnackBar
-                      },
-                      icon: const Icon(Icons.fitness_center),
-                      label: const Text('Explore FitMe AI'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                );
+              }
+            },
           );
         }
       },
