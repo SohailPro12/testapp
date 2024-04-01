@@ -136,7 +136,7 @@ class UserHomeView extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              //Navigator.pushNamed(context, '/coach/ma routine');
+                              //Navigator.pushNrgteamed(context, '/coach/ma routine');
                             },
                             icon: const Icon(Icons.message),
                             label: const Text('créer ma routine'),
