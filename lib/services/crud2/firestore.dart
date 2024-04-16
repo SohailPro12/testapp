@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:testapp/services/auth/auth_service.dart';
 import 'package:testapp/services/crud/crud_exceptions.dart';
+import 'package:testapp/models/post.dart';
 
 class UserData {
   final String username;
@@ -155,6 +156,77 @@ class FireStoreService {
   Future<void> updateUserPhoto(String username, Uint8List photo) async {
     final userDoc = users.doc(username);
     await userDoc.set({'profile_photo': photo}, SetOptions(merge: true));
+  }
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<List<Post>> getAllPosts(String username) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('HubPosts')
+          .where('username', isEqualTo: username)
+          .get();
+
+      List<Post> posts = querySnapshot.docs
+          .map((doc) {
+            return Post(
+              postId: doc.id,
+              description: doc['description'],
+              postUrl: doc['postUrl'],
+              datatype: doc['datatype'],
+              username: doc['username'],
+              likes: doc['likes'],
+              createdAt: doc['createdAt']?.toDate(),
+              collectionName: doc['collectionName'],
+              // Add more fields if needed
+            );
+          })
+          .where((post) => !post.description.contains('premium'))
+          .toList();
+
+      return posts;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<List<Post>> getPremiumPosts(String username) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('HubPosts')
+          .where('username', isEqualTo: username)
+          .get();
+
+      List<Post> premiumPosts = querySnapshot.docs
+          .map((doc) => Post.fromSnap(doc))
+          .where((post) => post.description.contains('premium'))
+          .toList();
+
+      return premiumPosts;
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error fetching premium posts: $e');
+      return [];
+    }
+  }
+
+  Future getFieldByUsernameCollection(
+      String field, String username, String collection) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection(collection)
+          .where('username', isEqualTo: username)
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        final userData = querySnapshot.docs.first.data();
+        final fieldValue = (userData)[field];
+        return fieldValue;
+      } else {
+        throw UserNotFoundException();
+      }
+    } catch (e) {
+      return null;
+    }
   }
 
   // Read

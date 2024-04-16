@@ -20,6 +20,7 @@ class _LoginViewState extends State<LoginView> {
   late final TextEditingController _email;
   late final TextEditingController _password;
   final FireStoreService _fireStoreService = FireStoreService();
+  bool _isPasswordVisible = false;
 
   @override
   void initState() {
@@ -84,7 +85,7 @@ class _LoginViewState extends State<LoginView> {
                 const SizedBox(height: 20),
                 TextField(
                   controller: _password,
-                  obscureText: true,
+                  obscureText: !_isPasswordVisible,
                   enableSuggestions: false,
                   autocorrect: false,
                   decoration: InputDecoration(
@@ -96,6 +97,19 @@ class _LoginViewState extends State<LoginView> {
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none, // No border
                       borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                      child: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                 ),

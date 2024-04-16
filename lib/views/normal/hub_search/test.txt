@@ -1,0 +1,433 @@
+// ignore_for_file: use_build_context_synchronously, avoid_print
+
+import 'dart:typed_data';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:testapp/services/crud2/firestore.dart';
+import 'package:testapp/services/crud2/storage.dart';
+import 'package:testapp/views/coach/hub/post_desc.dart';
+import 'package:testapp/views/coach/hub/post_info.dart';
+import 'package:testapp/views/coach/profile/coach_profile_view.dart';
+import 'package:testapp/views/coach/profile/utils.dart';
+
+class YourHubView extends StatelessWidget {
+  const YourHubView({super.key});
+
+  Future<void> _showPostOptionsDialog(
+      BuildContext context, String username) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Post Options"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddPostScreen(
+                        username: username,
+                        collectionName: 'HubPosts',
+                        postType: PostType.image,
+                      ),
+                    ),
+                  );
+                },
+                child: const Text("Post Image"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddPostScreen(
+                        username: username,
+                        collectionName: 'HubPosts',
+                        postType: PostType.video,
+                      ),
+                    ),
+                  );
+                },
+                child: const Text("Post Video"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Future<String> fetchUsername() async {
+      try {
+        final FireStoreService fireStoreService = FireStoreService();
+        String username = await fireStoreService.getUserField('username');
+
+        String username0 = username;
+        return username0;
+      } catch (e) {
+        return e.toString();
+      }
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Your Hub'),
+        backgroundColor:
+            const Color.fromARGB(255, 222, 243, 330), // Darker AppBar
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search), // Search Icon
+            onPressed: () {
+              // Implement search functionality
+            },
+          ),
+        ],
+      ),
+      body: const YourHubBody(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          fetchUsername().then((username) {
+            _showPostOptionsDialog(context, username);
+          });
+        },
+        backgroundColor: Colors.red,
+        child: const Icon(Icons.add), // Red FAB for visibility
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.video_library),
+            label: 'Videos',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        onTap: (index) {
+          if (index == 2) {
+            // Assuming 'Profile' is the third item (index 2)
+            // Navigate to profile view
+            // Implement navigation to profile view here
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CoachProfileView()),
+            );
+          }
+        },
+      ),
+    );
+  }
+}
+
+class YourHubBody extends StatefulWidget {
+  const YourHubBody({super.key});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _YourHubBodyState createState() => _YourHubBodyState();
+}
+
+class _YourHubBodyState extends State<YourHubBody> {
+  final FireStoreService _fireStoreService = FireStoreService();
+
+  String _profileImageUrl = ''; // Store profile image URL
+  String _bannerImageUrl = ''; // Store banner image URL
+  String _fullName = ''; // Store full name
+  String _username = ''; // Store username
+  Future<void> _uploadImage(BuildContext context, String username) async {
+    Uint8List? image = await pickImage(ImageSource.gallery);
+    if (image != null) {
+      StorageService storageService = StorageService();
+      String response = await storageService.saveData(
+        username: username,
+        datatype: "banner",
+        file: image,
+      );
+      if (response == "The banner  was saved successfully") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('banner uploaded successfully')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('banner to upload image: $response')),
+        );
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch username
+    _fetchUsername();
+  }
+
+  // Fetch username
+  void _fetchUsername() async {
+    try {
+      String username = await _fireStoreService.getUserField('username');
+      setState(() {
+        _username = username;
+      });
+      // Once username is fetched, fetch other related data
+      _fetchProfileImage();
+      _fetchFullName();
+      _fetchBannerImage();
+    } catch (e) {
+      print('Error fetching username: $e');
+    }
+  }
+
+  // Fetch profile image URL
+  void _fetchProfileImage() async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('userProfile')
+        .where('username', isEqualTo: _username)
+        .where('datatype', isEqualTo: 'profilePicture')
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      setState(() {
+        _profileImageUrl = querySnapshot.docs.first.get('url');
+      });
+    }
+  }
+
+  // Fetch full name
+  void _fetchFullName() async {
+    try {
+      String fullName = await _fireStoreService.getUserField('full_name');
+      setState(() {
+        _fullName = fullName;
+      });
+    } catch (e) {
+      print('Error fetching full name: $e');
+    }
+  }
+
+  // Fetch banner image URL
+  void _fetchBannerImage() async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('userProfile')
+        .where('username', isEqualTo: _username)
+        .where('banner', isEqualTo: 'banner')
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      setState(() {
+        _bannerImageUrl = querySnapshot.docs.first.get('bannerurl');
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Stack(
+          children: [
+            SizedBox(
+              height: 200, // Adjust height as needed
+              child: _bannerImageUrl.isNotEmpty
+                  ? Image.network(
+                      _bannerImageUrl,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                    )
+                  : Container(
+                      color: Colors.grey, // Placeholder color
+                      child: const Center(
+                        child: Text(
+                          'Banner Image', // Placeholder text
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+            ),
+            Positioned(
+              bottom: 10,
+              right: 10,
+              child: IconButton(
+                onPressed: () {
+                  _uploadImage(context, _username);
+                },
+                icon: const Icon(Icons.add_a_photo),
+              ),
+            ),
+            Positioned(
+              top: 10,
+              right: 10,
+              child: IconButton(
+                onPressed: () {
+                  // Add functionality here
+                },
+                icon: const Icon(Icons.add_circle),
+              ),
+            ),
+            Positioned(
+              left: MediaQuery.of(context).size.width / 2 - 50,
+              bottom: 0,
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color.fromARGB(255, 227, 126, 126),
+                    width: 2,
+                  ),
+                ),
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundImage: _profileImageUrl.isNotEmpty
+                      ? NetworkImage(_profileImageUrl)
+                      : null,
+                  child:
+                      _profileImageUrl.isEmpty ? const Text('No Photo') : null,
+                ),
+              ),
+            ),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Text(
+            'Welcome to your hub, Coach $_fullName!',
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Your Latest Posts',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Fetch and display posts using StreamBuilder
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection(
+                        'HubPosts') // Change this to your collection name
+                    .orderBy('timestamp', descending: true)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+
+                  if (snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    print(snapshot.toString());
+                    return const Text('No posts available.');
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: snapshot.data!.docs.map((doc) {
+                      // Extract post data
+                      String description = doc['description'];
+                      String postUrl = doc['postUrl'];
+
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PostDescription(
+                                description: description,
+                                postUrl: postUrl,
+                                isVideo: postUrl.contains('.mp4') ||
+                                    postUrl.contains('.mov') ||
+                                    postUrl.contains('.avi') ||
+                                    postUrl.contains('.mkv'),
+                              ),
+                            ),
+                          );
+                        },
+                        child: Card(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (postUrl.isNotEmpty &&
+                                  (postUrl.contains('.jpg') ||
+                                      postUrl.contains('.jpeg') ||
+                                      postUrl.contains('.png')))
+                                Image.network(
+                                  postUrl,
+                                  width: double.infinity,
+                                  height: 200,
+                                  fit: BoxFit.cover,
+                                )
+                              else if (postUrl.isNotEmpty &&
+                                  (postUrl.contains('.mp4') ||
+                                      postUrl.contains('.mov') ||
+                                      postUrl.contains('.avi') ||
+                                      postUrl.contains('.mkv')))
+                                Image.network(
+                                  postUrl,
+                                  width: double.infinity,
+                                  height: 200,
+                                  fit: BoxFit.cover,
+                                ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  description,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}

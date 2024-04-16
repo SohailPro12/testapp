@@ -4,12 +4,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:testapp/services/crud/crud_exceptions.dart';
+import 'package:testapp/models/post.dart';
+import 'package:uuid/uuid.dart';
 
 final FirebaseStorage _storage = FirebaseStorage.instance;
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 class StorageService {
-  Future<String> uploadImageToStorage(
+  Future<String> uploadFileToStorage(
       String username, String childName, Uint8List file) async {
     Reference ref = _storage.ref().child(childName).child(username);
     UploadTask uploadTask = ref.putData(file);
@@ -26,7 +28,7 @@ class StorageService {
     String resp = "Some error occurred while saving";
     try {
       if (username.isNotEmpty || datatype.isNotEmpty) {
-        String imageUrl = await uploadImageToStorage(username, datatype, file);
+        String imageUrl = await uploadFileToStorage(username, datatype, file);
         if (datatype == "profilePicture") {
           // Update profile picture
           DocumentReference docRef = FirebaseFirestore.instance
@@ -40,24 +42,72 @@ class StorageService {
           }, SetOptions(merge: true)); // Merge data if document already exists
 
           resp = "The profile picture was saved successfully";
-        } else {
-          // For other data types, simply add a new document
-          await FirebaseFirestore.instance
+        } else if (datatype == "banner") {
+          // Update banner image
+          DocumentReference docRef = FirebaseFirestore.instance
               .collection('userProfile')
-              .doc(username) // Use username as document ID
-              .set({
-            'username': username,
-            'datatype': datatype,
-            'url': imageUrl,
-          });
+              .doc(username); // Use username as document ID
 
-          resp = "The data was saved successfully";
+          await docRef.set({
+            'banner': datatype,
+            'bannerurl': imageUrl,
+          }, SetOptions(merge: true)); // Merge data if document already exists
+
+          resp = "The banner image was saved successfully";
         }
       }
     } catch (e) {
       resp = e.toString();
     }
     return resp;
+  }
+
+  Future<String> uploadPostToStorage(
+      String username, String childName, Uint8List file, bool isPost) async {
+    // creating location to our firebase storage
+
+    Reference ref = _storage.ref().child(childName).child(username);
+    if (isPost) {
+      String id = const Uuid().v1();
+      ref = ref.child(id);
+    }
+
+    // putting in uint8list format -> Upload task like a future but not future
+    UploadTask uploadTask = ref.putData(file);
+
+    TaskSnapshot snapshot = await uploadTask;
+    String downloadUrl = await snapshot.ref.getDownloadURL();
+    return downloadUrl;
+  }
+
+  Future<String> uploadPost({
+    required String datatype,
+    required String collectionName,
+    required String username,
+    required Uint8List file,
+    required String description,
+  }) async {
+    String res = "Some error occurred";
+    try {
+      String postUrl =
+          await uploadPostToStorage(username, collectionName, file, true);
+      String postId = const Uuid().v1(); // creates unique id based on time
+      Post post = Post(
+        postId: postId,
+        username: username,
+        postUrl: postUrl,
+        datatype: datatype,
+        collectionName: collectionName,
+        description: description,
+        likes: 0, // Initialize likes to 0
+        createdAt: DateTime.now(),
+      );
+      _firestore.collection(collectionName).doc(postId).set(post.toJson());
+      res = "success";
+    } catch (err) {
+      res = err.toString();
+    }
+    return res;
   }
 
   final CollectionReference profile =

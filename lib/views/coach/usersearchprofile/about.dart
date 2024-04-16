@@ -4,10 +4,9 @@ import 'package:testapp/services/crud2/firestore.dart';
 final FireStoreService _fireStoreService = FireStoreService();
 
 class AboutSection extends StatelessWidget {
-  final String username;
+  final String username; // Add username as a parameter
 
-  // ignore: use_super_parameters
-  const AboutSection({Key? key, required this.username}) : super(key: key);
+  const AboutSection({super.key, required this.username});
 
   Future<String> getBio() =>
       _fireStoreService.getUserFieldByUsername('Bio', username);

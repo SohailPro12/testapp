@@ -1,38 +1,52 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:share_plus/share_plus.dart'; // Import the share_plus package
+import 'package:testapp/services/crud/crud_exceptions.dart';
 import 'package:testapp/services/crud2/firestore.dart';
-import 'package:testapp/views/normal/coachsearchprofile/about.dart';
-import 'package:testapp/views/normal/coachsearchprofile/contact.dart';
+import 'package:testapp/views/coach/profile/utils.dart';
+import 'package:testapp/views/coach/usersearchprofile/about.dart';
+import 'package:testapp/views/coach/usersearchprofile/contact.dart';
 
-class RequiredCoachnameProfileView extends StatefulWidget {
-  final String username;
+class RequiredUsernameProfileView extends StatefulWidget {
+  final String username; // Add username as a parameter
 
-  const RequiredCoachnameProfileView({super.key, required this.username});
+  // ignore: use_super_parameters
+  const RequiredUsernameProfileView({Key? key, required this.username})
+      : super(key: key);
 
   @override
-  State<RequiredCoachnameProfileView> createState() =>
-      _RequiredCoachnameProfileViewState();
+  State<RequiredUsernameProfileView> createState() =>
+      _RequiredUsernameProfileViewState();
 }
 
-final FireStoreService _fireStoreService = FireStoreService();
-
-class _RequiredCoachnameProfileViewState
-    extends State<RequiredCoachnameProfileView> {
-  late String _username;
-  String? _profileImageUrl;
+class _RequiredUsernameProfileViewState
+    extends State<RequiredUsernameProfileView> {
+  List<Tab> tabs = [
+    const Tab(
+      text: "About",
+      icon: Icon(Icons.account_box),
+    ),
+    const Tab(
+      text: "Contact",
+      icon: Icon(Icons.contact_page),
+    ),
+  ];
 
   @override
   void initState() {
     super.initState();
-    _username = widget.username;
     loadProfileImage();
   }
+
+  String? _profileImageUrl;
 
   void loadProfileImage() async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('userProfile')
-        .where('username', isEqualTo: _username)
+        .where('username', isEqualTo: widget.username) // Use widget.username
         .where('datatype', isEqualTo: 'profilePicture')
         .get();
 
@@ -43,20 +57,36 @@ class _RequiredCoachnameProfileViewState
     }
   }
 
+  Future<String> getUserFieldByUsername(
+      String username, String fieldName) async {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('username', isEqualTo: username)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      final userData = querySnapshot.docs.first.data();
+      final fieldValue = (userData)[fieldName]?.toString() ?? '';
+      return fieldValue;
+    } else {
+      throw UserNotFoundException();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<String>(
-      future: Future.value(_username),
+      future: getUserFieldByUsername(widget.username, 'username'),
       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
-          String profileUrl = 'https://fitme.com/profile/$_username';
+          String username = snapshot.data ?? '';
+          String profileUrl = 'https://fitme.com/profile/$username';
 
           return DefaultTabController(
-            length: 2,
+            length: tabs.length,
             child: Scaffold(
               appBar: AppBar(
                 backgroundColor: const Color.fromARGB(255, 200, 202, 70),
@@ -77,11 +107,8 @@ class _RequiredCoachnameProfileViewState
                     stats(),
                   ],
                 ),
-                bottom: const TabBar(
-                  tabs: [
-                    Tab(text: "About", icon: Icon(Icons.account_box)),
-                    Tab(text: "Contact", icon: Icon(Icons.contact_page)),
-                  ],
+                bottom: TabBar(
+                  tabs: tabs,
                   indicatorColor: Colors.white,
                   indicatorSize: TabBarIndicatorSize.tab,
                 ),
@@ -96,8 +123,10 @@ class _RequiredCoachnameProfileViewState
               ),
               body: TabBarView(
                 children: [
-                  AboutSection(username: _username),
-                  ContactSection(username: _username),
+                  AboutSection(username: username),
+                  ContactSection(
+                    username: username,
+                  ),
                 ],
               ),
             ),
@@ -111,7 +140,7 @@ class _RequiredCoachnameProfileViewState
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: FutureBuilder<String>(
-        future: _fireStoreService.getUserFieldByUsername('Domain', _username),
+        future: getUserFieldByUsername(widget.username, 'favorite_sport'),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
@@ -135,8 +164,7 @@ class _RequiredCoachnameProfileViewState
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: FutureBuilder<String>(
-        future:
-            _fireStoreService.getUserFieldByUsername('full_name', _username),
+        future: getUserFieldByUsername(widget.username, 'full_name'),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
@@ -160,9 +188,8 @@ class _RequiredCoachnameProfileViewState
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        statsColumn("Photos", "160"),
-        statsColumn("Followers", "1657"),
-        statsColumn("Customer", "9"),
+        statsColumn("Streak", "160"),
+        statsColumn("Following", "1657"),
       ],
     );
   }
@@ -184,6 +211,16 @@ class _RequiredCoachnameProfileViewState
         ),
       ],
     );
+  }
+
+  Uint8List? _image;
+
+  void selectImage() async {
+    final Uint8List? img = await pickImage(ImageSource.gallery);
+
+    setState(() {
+      _image = img;
+    });
   }
 
   Container profilePhotos() {

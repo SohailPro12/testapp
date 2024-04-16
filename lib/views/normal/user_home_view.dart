@@ -4,6 +4,7 @@ import 'package:testapp/services/auth/auth_service.dart';
 import 'package:testapp/constants/routes.dart';
 import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/services/crud2/storage.dart';
+import 'package:testapp/views/conversation_view.dart';
 import 'package:testapp/views/normal/coaches_list.dart';
 
 class UserHomeView extends StatelessWidget {
@@ -72,6 +73,17 @@ class UserHomeView extends StatelessWidget {
                         backgroundImage: profileImageUrl != null
                             ? NetworkImage(profileImageUrl) as ImageProvider
                             : const AssetImage('assets/images/nopp.jpeg'),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ConversationListPage(),
+                            ),
+                          );
+                        },
+                        icon: Icon(Icons.message), // Message icon
                       ),
                       PopupMenuButton<MenuAction>(
                         onSelected: (value) async {
@@ -159,7 +171,7 @@ class UserHomeView extends StatelessWidget {
                             onPressed: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (context) => CoachesListView(),
+                                  builder: (context) => const CoachesListView(),
                                 ),
                               );
                             },

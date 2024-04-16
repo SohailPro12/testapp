@@ -11,8 +11,6 @@ import 'package:testapp/views/login_view.dart';
 import 'package:testapp/views/normal/ma_routine.dart';
 import 'package:testapp/views/normal/profile/user_profile_view.dart';
 import 'package:testapp/views/normal/user_home_view.dart';
-import 'package:testapp/views/notes/create_update_note_view.dart';
-import 'package:testapp/views/notes/notes_view.dart';
 import 'package:testapp/views/register_view.dart';
 import 'package:testapp/views/verfy_email_view.dart';
 
@@ -29,13 +27,11 @@ void main() {
         routes: {
           loginRoute: (context) => const LoginView(),
           registerRoute: (context) => const RegisterView(),
-          notesRoute: (context) => const NotesView(),
           verifyemailRoute: (context) => const VerifyEmailview(),
           additionalInfoRoute: (context) => const AdditionalInfo(),
           coachaAdditionalInfoRoute: (context) => const CoachaAdditionalInfo(
                 fullName: '',
               ),
-          createOrUpdateNoteRoute: (context) => const CreateUpdateNoteView(),
           iAmANormalUserRoute: (context) => UserHomeView(),
           coachProfileViewRoute: (context) => const CoachProfileView(),
           iAmACoachRoute: (context) => CoachHomeView(),

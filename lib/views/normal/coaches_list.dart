@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:testapp/views/normal/coachsearchprofile/coachsearchprofile.dart';
+import 'package:testapp/views/normal/hub_search/coach_hub.dart';
 
 class CoachesListView extends StatelessWidget {
   const CoachesListView({super.key});
@@ -50,7 +50,7 @@ class CoachList extends StatelessWidget {
             return FutureBuilder<DocumentSnapshot>(
               future: FirebaseFirestore.instance
                   .collection('userProfile')
-                  .doc(coachData['username']) // Use 'username' instead of 'id'
+                  .doc(coachData['username'])
                   .get(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -73,7 +73,7 @@ class CoachList extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => RequiredUsernameProfileView(
+                        builder: (context) => RequiredUserNameCoachHubView(
                           username: coachData['username'],
                         ),
                       ),

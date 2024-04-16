@@ -13,10 +13,10 @@ packages:
     dependency: transitive
     description:
       name: _flutterfire_internals
-      sha256: "4eec93681221723a686ad580c2e7d960e1017cf1a4e0a263c2573c2c6b0bf5cd"
+      sha256: "0cb43f83f36ba8cb20502dee0c205e3f3aafb751732d724aeac3f2e044212cc2"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.25"
+    version: "1.3.29"
   analyzer:
     dependency: transitive
     description:
@@ -125,10 +125,10 @@ packages:
     dependency: transitive
     description:
       name: cross_file
-      sha256: fedaadfa3a6996f75211d835aaeb8fede285dae94262485698afd832371b9a5e
+      sha256: "55d7b444feb71301ef6b8838dbc1ae02e63dd48c8773f3810ff53bb1e2945b32"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.3+8"
+    version: "0.3.4+1"
   crypto:
     dependency: transitive
     description:
@@ -269,10 +269,10 @@ packages:
     dependency: "direct main"
     description:
       name: firebase_core
-      sha256: "53316975310c8af75a96e365f9fccb67d1c544ef0acdbf0d88bbe30eedd1c4f9"
+      sha256: a864d1b6afd25497a3b57b016886d1763df52baaa69758a46723164de8d187fe
       url: "https://pub.dev"
     source: hosted
-    version: "2.27.0"
+    version: "2.29.0"
   firebase_core_platform_interface:
     dependency: transitive
     description:
@@ -285,10 +285,10 @@ packages:
     dependency: transitive
     description:
       name: firebase_core_web
-      sha256: c8e1d59385eee98de63c92f961d2a7062c5d9a65e7f45bdc7f1b0b205aab2492
+      sha256: c8b02226e548f35aace298e2bb2e6c24e34e8a203d614e742bb1146e5a4ad3c8
       url: "https://pub.dev"
     source: hosted
-    version: "2.11.5"
+    version: "2.15.0"
   firebase_storage:
     dependency: "direct main"
     description:
@@ -301,18 +301,18 @@ packages:
     dependency: transitive
     description:
       name: firebase_storage_platform_interface
-      sha256: "4a2b64d4dac096390a0b7f2e7b6d086d0546c4a1bf7ee3fc4b5ae4cc41005c46"
+      sha256: fbcbc076e7f3754d92824061a720dfa40cb2fb02847267129bd35e4c03b8ade5
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.12"
+    version: "5.1.16"
   firebase_storage_web:
     dependency: transitive
     description:
       name: firebase_storage_web
-      sha256: "4153814db8d59138e816d9f016736e4095c45675a2c18f2868d11ffd8cc6a4ca"
+      sha256: "801ec2c27e595f75941140c187596919ae8945f95743d01f664e44bea7cf86bd"
       url: "https://pub.dev"
     source: hosted
-    version: "3.7.3"
+    version: "3.9.1"
   fixnum:
     dependency: transitive
     description:
@@ -326,6 +326,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_chat_list:
+    dependency: "direct main"
+    description:
+      name: flutter_chat_list
+      sha256: "45e3b41dece951ba65118f0aeee72e9a1aac161cff6608d88f00466225d33cfb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.6"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -334,6 +342,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  flutter_list_view:
+    dependency: transitive
+    description:
+      name: flutter_list_view
+      sha256: b6b7e1bda537869312aa1184dbff279b33bb52b83f472a1972362ff9fcf1be38
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.24"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -360,6 +376,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.0"
+  gallery_saver:
+    dependency: "direct main"
+    description:
+      name: gallery_saver
+      sha256: df8b7e207ca12d64c71e0710a7ee3bc48aa7206d51cc720716fedb1543a66712
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.2"
   glob:
     dependency: transitive
     description:
@@ -380,10 +404,10 @@ packages:
     dependency: transitive
     description:
       name: http
-      sha256: a2bbf9d017fcced29139daa8ed2bba4ece450ab222871df93ca9eec6f80c34ba
+      sha256: "5895291c13fa8a3bd82e76d5627f69e0d85ca6a30dcac95c4ea19a5d555879c2"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.0"
+    version: "0.13.6"
   http_multi_server:
     dependency: transitive
     description:
@@ -465,7 +489,7 @@ packages:
     source: hosted
     version: "0.2.1+1"
   intl:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: intl
       sha256: d6f56758b7d3014a48af9701c085700aac781a92a87a62b1333b46d8879661cf
@@ -588,10 +612,10 @@ packages:
     dependency: transitive
     description:
       name: package_info_plus
-      sha256: "88bc797f44a94814f2213db1c9bd5badebafdfb8290ca9f78d4b9ee2a3db4d79"
+      sha256: "7e76fad405b3e4016cd39d08f455a4eb5199723cf594cd1b8916d47140d93017"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.1"
+    version: "4.2.0"
   package_info_plus_platform_interface:
     dependency: transitive
     description:
@@ -704,6 +728,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  pull_to_refresh:
+    dependency: transitive
+    description:
+      name: pull_to_refresh
+      sha256: bbadd5a931837b57739cf08736bea63167e284e71fb23b218c8c9a6e042aad12
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   share_plus:
     dependency: "direct main"
     description:
@@ -913,10 +945,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_web
-      sha256: fff0932192afeedf63cdd50ecbb1bc825d31aed259f02bb8dba0f3b729a5e88b
+      sha256: "8d9e750d8c9338601e709cd0885f95825086bd8b642547f26bda435aade95d8a"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.3"
+    version: "2.3.1"
   url_launcher_windows:
     dependency: transitive
     description:
@@ -1017,10 +1049,10 @@ packages:
     dependency: transitive
     description:
       name: web
-      sha256: afe077240a270dcfd2aafe77602b4113645af95d0ad31128cc02bce5ac5d5152
+      sha256: "97da13628db363c635202ad97068d47c5b8aa555808e7a9411963c533b449b27"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0"
+    version: "0.5.1"
   web_socket_channel:
     dependency: transitive
     description:
@@ -1070,5 +1102,5 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.2.3 <4.0.0"
-  flutter: ">=3.16.0"
+  dart: ">=3.3.0 <4.0.0"
+  flutter: ">=3.19.0"

@@ -4,7 +4,8 @@ import 'package:testapp/services/auth/auth_service.dart';
 import 'package:testapp/constants/routes.dart';
 import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/services/crud2/storage.dart';
-import 'package:testapp/views/coach/coach_hub.dart';
+import 'package:testapp/views/coach/hub/coach_hub.dart';
+import 'package:testapp/views/conversation_view.dart';
 
 class CoachHomeView extends StatelessWidget {
   CoachHomeView({super.key});
@@ -136,7 +137,12 @@ class CoachHomeView extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              //Navigator.pushNamed(context, '/coach/messages');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ConversationListPage(),
+                                ),
+                              );
                             },
                             icon: const Icon(Icons.message),
                             label: const Text('Check Messages'),
