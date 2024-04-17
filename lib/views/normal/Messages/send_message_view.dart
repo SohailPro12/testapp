@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
@@ -109,19 +108,22 @@ class ChatPage extends StatelessWidget {
             final bool isImage = data['imageUrl'] != null;
             final bool isVideo = data['videoUrl'] != null;
 
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0),
-              child: GestureDetector(
-                onTap: () {
-                  if (isImage) {
-                    // Open image in a dialog
-                    _viewImageDialog(context, data['imageUrl']);
-                  } else if (isVideo) {
-                    // Play video
-                    // You can implement video player here
-                    _playVideo(context, data['videoUrl']);
-                  }
-                },
+            return GestureDetector(
+              onLongPress: () {
+                if (!isImage && !isVideo) {
+                  // Show options dialog for text message
+                  _showOptionsDialog(
+                    context,
+                    messages[index].id,
+                    chatRoomID,
+                    data['message'],
+                    isImage,
+                    isVideo,
+                  );
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
                 child: Stack(
                   alignment: Alignment.topRight,
                   children: [
@@ -170,14 +172,20 @@ class ChatPage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (isImage || isVideo)
-                      IconButton(
-                        onPressed: () {
-                          // Download image or video
-                          _downloadFile(data['imageUrl'] ?? data['videoUrl']);
-                        },
-                        icon: Icon(Icons.download),
-                      ),
+                    IconButton(
+                      onPressed: () {
+                        // Show options dialog for media files
+                        _showOptionsDialog(
+                          context,
+                          messages[index].id,
+                          chatRoomID,
+                          data['imageUrl'] ?? data['videoUrl'],
+                          isImage,
+                          isVideo,
+                        );
+                      },
+                      icon: Icon(Icons.more_vert),
+                    ),
                   ],
                 ),
               ),
@@ -207,6 +215,9 @@ class ChatPage extends StatelessWidget {
     BuildContext context,
     String messageId,
     String chatRoomID,
+    String mediaUrl,
+    bool isImage,
+    bool isVideo,
   ) {
     showDialog(
       context: context,
@@ -216,6 +227,16 @@ class ChatPage extends StatelessWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (!isImage && !isVideo)
+                ListTile(
+                  leading: const Icon(Icons.edit),
+                  title: const Text('Edit Message'),
+                  onTap: () {
+                    _editMessage(
+                        context, messageId, chatRoomID); // Edit message
+                    Navigator.pop(context); // Close the dialog
+                  },
+                ),
               ListTile(
                 leading: const Icon(Icons.delete),
                 title: const Text('Delete Message'),
@@ -227,13 +248,15 @@ class ChatPage extends StatelessWidget {
                   Navigator.pop(context); // Close the dialog
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.edit),
-                title: const Text('Edit Message'),
-                onTap: () {
-                  _editMessage(context, messageId, chatRoomID); // Edit message
-                },
-              ),
+              if (isImage || isVideo)
+                ListTile(
+                  leading: const Icon(Icons.download),
+                  title: const Text('Download Media'),
+                  onTap: () {
+                    _downloadFile(mediaUrl);
+                    Navigator.pop(context); // Close the dialog
+                  },
+                ),
             ],
           ),
         );
