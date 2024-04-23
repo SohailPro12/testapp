@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
@@ -6,13 +7,14 @@ import 'package:testapp/services/chat/chat_service.dart';
 import 'package:testapp/services/crud2/firestore.dart';
 import 'package:video_player/video_player.dart';
 import 'package:gallery_saver/gallery_saver.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 
 class ChatPage extends StatelessWidget {
   final String currentUsername;
   final String receiverUsername;
 
   ChatPage({
-    super.key,
+    Key? key,
     required this.receiverUsername,
     required this.currentUsername,
   });
@@ -109,9 +111,12 @@ class ChatPage extends StatelessWidget {
             final bool isVideo = data['videoUrl'] != null;
 
             return GestureDetector(
-              onLongPress: () {
-                if (!isImage && !isVideo) {
-                  // Show options dialog for text message
+              onTap: () {
+                if (isImage) {
+                  _viewImageDialog(context, data['imageUrl']);
+                } else if (isVideo) {
+                  _playVideo(context, data['videoUrl']);
+                } else {
                   _showOptionsDialog(
                     context,
                     messages[index].id,
@@ -119,78 +124,228 @@ class ChatPage extends StatelessWidget {
                     data['message'],
                     isImage,
                     isVideo,
+                    isCurrentUser,
                   );
                 }
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Stack(
-                  alignment: Alignment.topRight,
+                child: Column(
+                  crossAxisAlignment: isCurrentUser
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
                   children: [
-                    Align(
+                    Stack(
                       alignment: isCurrentUser
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: isCurrentUser ? Colors.blue : Colors.grey,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (isImage)
-                              Image.network(
-                                data['imageUrl'],
-                                width: 200,
-                                height: 200,
-                                fit: BoxFit.cover,
-                              ),
-                            if (isVideo)
-                              AspectRatio(
-                                aspectRatio: 16 / 9,
-                                child: Container(
-                                  color: Colors.black,
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.play_arrow,
-                                      color: Colors.white,
-                                      size: 50,
+                          ? Alignment.topRight
+                          : Alignment.topLeft,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isCurrentUser ? Colors.blue : Colors.grey,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (isImage)
+                                Image.network(
+                                  data['imageUrl'],
+                                  width: 200,
+                                  height: 200,
+                                  fit: BoxFit.cover,
+                                ),
+                              if (isVideo)
+                                AspectRatio(
+                                  aspectRatio: 16 / 9,
+                                  child: Container(
+                                    color: Colors.black,
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.play_arrow,
+                                        color: Colors.white,
+                                        size: 50,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            if (!isImage && !isVideo)
-                              Text(
-                                data['message'],
-                                style: const TextStyle(
-                                  color: Colors.white,
+                              if (!isImage && !isVideo)
+                                Text(
+                                  data['message'],
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        // Show options dialog for media files
-                        _showOptionsDialog(
-                          context,
-                          messages[index].id,
-                          chatRoomID,
-                          data['imageUrl'] ?? data['videoUrl'],
-                          isImage,
-                          isVideo,
-                        );
-                      },
-                      icon: Icon(Icons.more_vert),
+                        if (isImage || isVideo)
+                          IconButton(
+                            onPressed: () {
+                              // Show options dialog
+                              _showOptionsDialog(
+                                context,
+                                messages[index].id,
+                                chatRoomID,
+                                data['message'],
+                                isImage,
+                                isVideo,
+                                isCurrentUser,
+                              );
+                            },
+                            icon: Icon(Icons.more_vert),
+                          ),
+                      ],
                     ),
                   ],
                 ),
               ),
             );
           },
+        );
+      },
+    );
+  }
+
+  Widget _buildUserInput() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _messageController,
+                      decoration: InputDecoration(
+                        hintText: 'Enter your message',
+                        border: InputBorder.none,
+                        suffixIcon: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              onPressed: _pickImage,
+                              icon: Icon(Icons.image),
+                              color: Colors.grey[600],
+                            ),
+                            IconButton(
+                              onPressed: _pickVideo,
+                              icon: Icon(Icons.videocam),
+                              color: Colors.grey[600],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(width: 8),
+          IconButton(
+            onPressed: sendMessage,
+            icon: Icon(Icons.send),
+            color: Colors.blue,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showReactionPicker(
+      BuildContext context, String chatRoomId, String messageId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Material(
+          child: EmojiPicker(
+            onEmojiSelected: (category, emoji) {
+              _chatService.sendReaction(chatRoomId, messageId, emoji.name);
+              Navigator.pop(context); // Close the dialog
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  void _showOptionsDialog(
+    BuildContext context,
+    String messageId,
+    String chatRoomID,
+    String message,
+    bool isImage,
+    bool isVideo,
+    bool isCurrentUser,
+  ) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Message Options'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isCurrentUser && !isImage && !isVideo)
+                ListTile(
+                  leading: const Icon(Icons.delete),
+                  title: const Text('Delete Message'),
+                  onTap: () {
+                    _chatService.deleteMessage(
+                      chatRoomID,
+                      messageId,
+                    ); // Delete message
+                    Navigator.pop(context); // Close the dialog
+                  },
+                ),
+              if (isCurrentUser && !isImage && !isVideo)
+                ListTile(
+                  leading: const Icon(Icons.edit),
+                  title: const Text('Edit Message'),
+                  onTap: () {
+                    _editMessage(context, messageId, chatRoomID, message);
+                  },
+                ),
+              if (!isCurrentUser && !isImage && !isVideo)
+                ListTile(
+                  leading: const Icon(Icons.favorite),
+                  title: const Text('React to Message'),
+                  onTap: () {
+                    _showReactionPicker(context, chatRoomID, messageId);
+                  },
+                ),
+              if (isImage || isVideo)
+                ListTile(
+                  leading: const Icon(Icons.download),
+                  title: const Text('Download Media'),
+                  onTap: () {
+                    _downloadFile(message);
+                    Navigator.pop(context); // Close the dialog
+                  },
+                ),
+              if (isImage || isVideo)
+                ListTile(
+                  leading: const Icon(Icons.delete),
+                  title: const Text('Delete Message'),
+                  onTap: () {
+                    _chatService.deleteMessage(
+                      chatRoomID,
+                      messageId,
+                    ); // Delete message
+                    Navigator.pop(context); // Close the dialog
+                  },
+                ),
+            ],
+          ),
         );
       },
     );
@@ -211,66 +366,14 @@ class ChatPage extends StatelessWidget {
     }
   }
 
-  void _showOptionsDialog(
-    BuildContext context,
-    String messageId,
-    String chatRoomID,
-    String mediaUrl,
-    bool isImage,
-    bool isVideo,
-  ) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Message Options'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (!isImage && !isVideo)
-                ListTile(
-                  leading: const Icon(Icons.edit),
-                  title: const Text('Edit Message'),
-                  onTap: () {
-                    _editMessage(
-                        context, messageId, chatRoomID); // Edit message
-                    Navigator.pop(context); // Close the dialog
-                  },
-                ),
-              ListTile(
-                leading: const Icon(Icons.delete),
-                title: const Text('Delete Message'),
-                onTap: () {
-                  _chatService.deleteMessage(
-                    chatRoomID,
-                    messageId,
-                  ); // Delete message
-                  Navigator.pop(context); // Close the dialog
-                },
-              ),
-              if (isImage || isVideo)
-                ListTile(
-                  leading: const Icon(Icons.download),
-                  title: const Text('Download Media'),
-                  onTap: () {
-                    _downloadFile(mediaUrl);
-                    Navigator.pop(context); // Close the dialog
-                  },
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   void _editMessage(
     BuildContext context,
     String messageId,
     String chatRoomID,
+    String message,
   ) {
     final TextEditingController _editedMessageController =
-        TextEditingController();
+        TextEditingController(text: message);
 
     showDialog(
       context: context,
@@ -301,46 +404,49 @@ class ChatPage extends StatelessWidget {
     );
   }
 
-  Widget _buildUserInput() {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TextField(
-                  controller: _messageController,
-                  decoration: const InputDecoration(
-                    hintText: 'Enter your message',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: _pickImage,
-                      icon: const Icon(Icons.image),
-                    ),
-                    IconButton(
-                      onPressed: _pickVideo,
-                      icon: const Icon(Icons.videocam),
-                    ),
-                  ],
-                ),
-              ],
+  void _viewImageDialog(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Image.network(imageUrl),
+        );
+      },
+    );
+  }
+
+  void _playVideo(BuildContext context, String videoUrl) async {
+    final VideoPlayerController _controller =
+        VideoPlayerController.network(videoUrl);
+
+    await _controller.initialize();
+    _controller.play();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: GestureDetector(
+            onTap: () {
+              if (_controller.value.isPlaying) {
+                _controller.pause();
+              } else {
+                _controller.play();
+              }
+            },
+            child: AspectRatio(
+              aspectRatio: _controller.value.aspectRatio,
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  VideoPlayer(_controller),
+                  VideoProgressIndicator(_controller, allowScrubbing: true),
+                ],
+              ),
             ),
           ),
-          const SizedBox(width: 8),
-          IconButton(
-            onPressed: sendMessage,
-            icon: const Icon(Icons.send),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -363,42 +469,5 @@ class ChatPage extends StatelessWidget {
       // Call sendMessage method with videoFile parameter
       sendMessage(videoFile: videoFile);
     }
-  }
-
-  void _viewImageDialog(BuildContext context, data) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          child: Image.network(data),
-        );
-      },
-    );
-  }
-
-  void _playVideo(context, String videoUrl) async {
-    // Initialize the video player controller
-    final VideoPlayerController _controller =
-        // ignore: deprecated_member_use
-        VideoPlayerController.network(videoUrl);
-
-    // Initialize the video player and load the video
-    await _controller.initialize();
-
-    // Play the video
-    _controller.play();
-
-    // Optionally, you can show the video player in a dialog or a new screen
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          child: AspectRatio(
-            aspectRatio: _controller.value.aspectRatio,
-            child: VideoPlayer(_controller),
-          ),
-        );
-      },
-    );
   }
 }

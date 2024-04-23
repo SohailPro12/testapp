@@ -34,6 +34,7 @@ class _CoachProfileViewState extends State<CoachProfileView> {
     } else {
       loadUsername();
     }
+    _fetchNumberFollowers();
   }
 
   void loadUsername() async {
@@ -173,13 +174,29 @@ class _CoachProfileViewState extends State<CoachProfileView> {
     );
   }
 
+  int _numberOfFollowers = 0;
+  void _fetchNumberFollowers() async {
+    try {
+      String username = await _fireStoreService.getUserField('username');
+
+      int numberOfFollowers = await _fireStoreService
+          .getFieldByUsernameCollection("followers", username, "userProfile");
+      print(numberOfFollowers);
+
+      setState(() {
+        _numberOfFollowers = numberOfFollowers;
+      });
+    } catch (e) {
+      print('Error fetching username: $e');
+    }
+  }
+
   Row stats() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        statsColumn("Photos", "160"),
-        statsColumn("Followers", "1657"),
-        statsColumn("Customer", "9"),
+        statsColumn("Followers", _numberOfFollowers.toString()),
+        statsColumn("Customers", "0"),
       ],
     );
   }

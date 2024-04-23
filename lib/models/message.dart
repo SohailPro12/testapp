@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:testapp/models/reaction.dart';
 
 class Message {
   final String senderUserName;
@@ -9,6 +10,7 @@ class Message {
   final String chatRoomID;
   final String? imageUrl;
   final String? videoUrl;
+  final List<Reaction> reactions;
 
   Message({
     required this.senderUserName,
@@ -17,8 +19,9 @@ class Message {
     required this.message,
     required this.timestamp,
     required this.chatRoomID,
-    this.imageUrl = '',
-    this.videoUrl = '',
+    this.imageUrl,
+    this.videoUrl,
+    this.reactions = const [],
   });
 
   //convert to a map
@@ -32,6 +35,7 @@ class Message {
       'chatRoomID': chatRoomID,
       'imageUrl': imageUrl,
       'videoUrl': videoUrl,
+      'reactions': reactions.map((reaction) => reaction.toMap()).toList(),
     };
   }
 }

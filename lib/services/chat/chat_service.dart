@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:testapp/models/message.dart';
+import 'package:testapp/models/reaction.dart';
 import 'package:testapp/services/crud2/firestore.dart';
 
 class ChatService {
@@ -46,6 +47,7 @@ class ChatService {
         videoUrl: videoUrl,
         timestamp: timestamp,
         chatRoomID: chatRoomID, // Add chat room ID to the message
+        reactions: [], // Initialize reactions list
       );
 
       final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -165,6 +167,85 @@ class ChatService {
     } catch (e) {
       // Handle error
       print('Error updating message: $e');
+    }
+  }
+
+  Future<void> sendReaction(
+      String chatRoomID, String messageId, String reactionType) async {
+    try {
+      // Get the current username
+      final FireStoreService fireStoreService = FireStoreService();
+      String currentUsername = await fireStoreService.getUserField('username');
+      print(chatRoomID);
+      print(currentUsername);
+
+      // Get a reference to the message document
+      final FirebaseFirestore firestore = FirebaseFirestore.instance;
+      final DocumentReference messageRef = firestore
+          .collection('chatRooms')
+          .doc(chatRoomID) // Adjust with your chatRoomID
+          .collection('messages')
+          .doc(messageId); // Adjust with your messageId
+
+      // Check if the user has already reacted to this message
+      DocumentSnapshot messageSnapshot = await messageRef.get();
+      Map<String, dynamic>? messageData =
+          messageSnapshot.data() as Map<String, dynamic>?;
+
+      if (messageData != null && messageData.containsKey('reactions')) {
+        List<dynamic> reactions = messageData['reactions'];
+        bool userReacted = reactions.any((reaction) =>
+            reaction['userName'] == currentUsername &&
+            reaction['type'] != null);
+
+        if (userReacted) {
+          // User has already reacted to this message, update the existing reaction
+          List<dynamic> updatedReactions = reactions.map((reaction) {
+            if (reaction['userName'] == currentUsername) {
+              return {'userName': currentUsername, 'type': reactionType};
+            } else {
+              return reaction;
+            }
+          }).toList();
+
+          await messageRef.update({'reactions': updatedReactions});
+        } else {
+          // User has not reacted to this message yet, add a new reaction
+          Map<String, dynamic> newReaction = {
+            'userName': currentUsername,
+            'type': reactionType,
+          };
+
+          List<dynamic> updatedReactions = List.from(reactions)
+            ..add(newReaction);
+
+          await messageRef.update({'reactions': updatedReactions});
+        }
+      } else {
+        print("Reaction not updated");
+      }
+    } catch (e) {
+      // Handle error
+      print('Error sending reaction: $e');
+    }
+  }
+
+  Stream<List<Reaction>> getMessageReactions(String messageId) {
+    try {
+      final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+      // Query reactions collection for reactions to the specified message
+      return firestore
+          .collection('Reactions')
+          .where('messageId', isEqualTo: messageId)
+          .snapshots()
+          .map((snapshot) => snapshot.docs
+              .map((doc) => Reaction.fromMap(doc.data()))
+              .toList() as List<Reaction>);
+    } catch (e) {
+      // Handle error
+      print('Error getting message reactions: $e');
+      throw e; // Re-throw the error
     }
   }
 }

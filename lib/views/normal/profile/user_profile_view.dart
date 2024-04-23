@@ -36,6 +36,7 @@ class _UserProfileViewState extends State<UserProfileView> {
   void initState() {
     super.initState();
     loadProfileImage();
+    _loadUserData();
   }
 
   String? _profileImageUrl;
@@ -175,12 +176,75 @@ class _UserProfileViewState extends State<UserProfileView> {
     );
   }
 
+  int _streak = 0;
+  late DateTime _lastLoginDate;
+  void _loadUserData() async {
+    final FireStoreService fireStoreService = FireStoreService();
+    String _username = await fireStoreService.getUserField('username');
+
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(_username)
+        .get();
+    final userData = userDoc.data() as Map<String, dynamic>;
+
+    // Check if lastLoginDate field exists, if not, create it with current date
+    if (!userData.containsKey('lastLoginDate')) {
+      // Create lastLoginDate field with current date
+      await userDoc.reference.update({'lastLoginDate': Timestamp.now()});
+      await userDoc.reference.update({'_streak': 0});
+
+      // Update userData to reflect the change
+      userData['lastLoginDate'] = Timestamp.now();
+    }
+
+    setState(() {
+      _streak = userData['_streak'] ?? 0;
+      print(_streak);
+      _lastLoginDate = userData['lastLoginDate']?.toDate() ??
+          DateTime.now().subtract(const Duration(days: 1));
+      print(_lastLoginDate);
+      _updateStreak();
+    });
+  }
+
+  void _updateStreak() async {
+    // Calculate the difference in days between last login date and current date
+    final today = DateTime.now();
+    final differenceInDays = today.difference(_lastLoginDate).inDays;
+    print(differenceInDays);
+
+    if (differenceInDays == 1) {
+      // If user logs in consecutively, increase streak
+      setState(() {
+        _streak++;
+      });
+    } else if (differenceInDays > 1) {
+      // If user missed logging in for one or more days, reset streak
+      setState(() {
+        _streak = 1;
+      });
+    }
+
+    // Update last login date
+    _lastLoginDate = today;
+
+    // Save updated data to Firestore
+    final FireStoreService fireStoreService = FireStoreService();
+    String _username = await fireStoreService.getUserField('username');
+    final userDoc =
+        FirebaseFirestore.instance.collection('users').doc(_username);
+    await userDoc.update({
+      '_streak': _streak,
+      'lastLoginDate': Timestamp.fromDate(_lastLoginDate),
+    });
+  }
+
   Row stats() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        statsColumn("Streak", "160"),
-        statsColumn("Following", "1657"),
+        statsColumn("Streak", _streak.toString()),
       ],
     );
   }

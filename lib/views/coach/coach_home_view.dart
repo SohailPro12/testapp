@@ -6,6 +6,7 @@ import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/services/crud2/storage.dart';
 import 'package:testapp/views/coach/hub/coach_hub.dart';
 import 'package:testapp/views/conversation_view.dart';
+import 'package:testapp/views/fitme_ai_view.dart';
 
 class CoachHomeView extends StatelessWidget {
   CoachHomeView({super.key});
@@ -168,8 +169,11 @@ class CoachHomeView extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              // Implement navigation to FitMe AI view (placeholder for now)
-                              // Removed the SnackBar
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FitMeAIView(),
+                                  ));
                             },
                             icon: const Icon(Icons.fitness_center),
                             label: const Text('Explore FitMe AI'),
