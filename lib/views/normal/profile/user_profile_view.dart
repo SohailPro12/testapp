@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:share_plus/share_plus.dart'; // Import the share_plus package
+import 'package:share_plus/share_plus.dart';
 import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/services/crud2/storage.dart';
 import 'package:testapp/views/coach/profile/utils.dart';
@@ -11,8 +11,7 @@ import 'package:testapp/views/normal/profile/about.dart';
 import 'package:testapp/views/normal/profile/contact.dart';
 
 class UserProfileView extends StatefulWidget {
-  // ignore: use_key_in_widget_constructors
-  const UserProfileView({Key? key});
+  const UserProfileView({Key? key}) : super(key: key);
 
   @override
   State<UserProfileView> createState() => _UserProfileViewState();
@@ -32,22 +31,49 @@ class _UserProfileViewState extends State<UserProfileView> {
     ),
   ];
 
+  late TextEditingController _weightController;
+  late TextEditingController _heightController;
+
   @override
   void initState() {
     super.initState();
+    _weightController = TextEditingController();
+    _heightController = TextEditingController();
     loadProfileImage();
     _loadUserData();
+    _loadUserMetrics();
+  }
+
+  void _loadUserMetrics() async {
+    final fireStoreService = FireStoreService();
+    final username = await fireStoreService.getUserField('username');
+
+    final weight = await fireStoreService.getUserField('weight');
+    final height = await fireStoreService.getUserField('height');
+    setState(() {
+      // Initialize the controllers with the retrieved values
+      _weightController.text = weight ?? '';
+      _heightController.text = height ?? '';
+    });
+  }
+
+  @override
+  void dispose() {
+    _weightController.dispose();
+    _heightController.dispose();
+    super.dispose();
   }
 
   String? _profileImageUrl;
+  int _streak = 0;
+  late DateTime _lastLoginDate;
 
   void loadProfileImage() async {
     String username = await _fireStoreService.getUserField('username');
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('userProfile')
         .where('username', isEqualTo: username)
-        .where('datatype',
-            isEqualTo: 'profilePicture') // Update datatype to 'profilePicture'
+        .where('datatype', isEqualTo: 'profilePicture')
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
@@ -58,18 +84,16 @@ class _UserProfileViewState extends State<UserProfileView> {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     return FutureBuilder<String>(
       future: _fireStoreService.getUserField('username'),
       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator(); // Show a loading indicator while waiting
+          return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}'); // Show error message if any
+          return Text('Error: ${snapshot.error}');
         } else {
-          String username = snapshot.data ??
-              ''; // Use the data if available, or a default value
+          String username = snapshot.data ?? '';
           String profileUrl = 'https://fitme.com/profile/$username';
 
           return DefaultTabController(
@@ -92,6 +116,7 @@ class _UserProfileViewState extends State<UserProfileView> {
                     hobbies(),
                     const SizedBox(height: 10),
                     stats(),
+                    const SizedBox(height: 10), // Added spacing
                   ],
                 ),
                 bottom: TabBar(
@@ -114,6 +139,10 @@ class _UserProfileViewState extends State<UserProfileView> {
                   ContactSection(),
                 ],
               ),
+              floatingActionButton: ElevatedButton(
+                onPressed: _updateUserMetrics,
+                child: const Text('Update Metrics'),
+              ),
             ),
           );
         }
@@ -131,14 +160,12 @@ class _UserProfileViewState extends State<UserProfileView> {
         ]).then((results) => results.join(' ')),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator(); // Show a loading indicator while waiting
+            return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
-            return Text(
-                'Error: ${snapshot.error}'); // Show error message if any
+            return Text('Error: ${snapshot.error}');
           } else {
             return Text(
-              snapshot.data ??
-                  'Experties not defined yet', // Use the data if available, or a default message
+              snapshot.data ?? 'Expertise not defined yet',
               style: const TextStyle(
                 fontWeight: FontWeight.normal,
                 fontSize: 12,
@@ -157,14 +184,12 @@ class _UserProfileViewState extends State<UserProfileView> {
         future: _fireStoreService.getUserField('full_name'),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator(); // Show a loading indicator while waiting
+            return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
-            return Text(
-                'Error: ${snapshot.error}'); // Show error message if any
+            return Text('Error: ${snapshot.error}');
           } else {
             return Text(
-              snapshot.data ??
-                  'No name', // Use the data if available, or a default message
+              snapshot.data ?? 'No name',
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
@@ -176,8 +201,6 @@ class _UserProfileViewState extends State<UserProfileView> {
     );
   }
 
-  int _streak = 0;
-  late DateTime _lastLoginDate;
   void _loadUserData() async {
     final FireStoreService fireStoreService = FireStoreService();
     String _username = await fireStoreService.getUserField('username');
@@ -188,48 +211,36 @@ class _UserProfileViewState extends State<UserProfileView> {
         .get();
     final userData = userDoc.data() as Map<String, dynamic>;
 
-    // Check if lastLoginDate field exists, if not, create it with current date
     if (!userData.containsKey('lastLoginDate')) {
-      // Create lastLoginDate field with current date
       await userDoc.reference.update({'lastLoginDate': Timestamp.now()});
       await userDoc.reference.update({'_streak': 0});
-
-      // Update userData to reflect the change
       userData['lastLoginDate'] = Timestamp.now();
     }
 
     setState(() {
       _streak = userData['_streak'] ?? 0;
-      print(_streak);
       _lastLoginDate = userData['lastLoginDate']?.toDate() ??
           DateTime.now().subtract(const Duration(days: 1));
-      print(_lastLoginDate);
       _updateStreak();
     });
   }
 
   void _updateStreak() async {
-    // Calculate the difference in days between last login date and current date
     final today = DateTime.now();
     final differenceInDays = today.difference(_lastLoginDate).inDays;
-    print(differenceInDays);
 
     if (differenceInDays == 1) {
-      // If user logs in consecutively, increase streak
       setState(() {
         _streak++;
       });
     } else if (differenceInDays > 1) {
-      // If user missed logging in for one or more days, reset streak
       setState(() {
         _streak = 1;
       });
     }
 
-    // Update last login date
     _lastLoginDate = today;
 
-    // Save updated data to Firestore
     final FireStoreService fireStoreService = FireStoreService();
     String _username = await fireStoreService.getUserField('username');
     final userDoc =
@@ -245,6 +256,22 @@ class _UserProfileViewState extends State<UserProfileView> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         statsColumn("Streak", _streak.toString()),
+        const SizedBox(width: 20), // Add space here
+        Container(
+          width: 80, // Adjust the width as needed
+          child: TextFormField(
+            controller: _weightController,
+            decoration: InputDecoration(hintText: 'Weight'),
+          ),
+        ),
+        const SizedBox(width: 10), // Add space here
+        Container(
+          width: 80, // Adjust the width as needed
+          child: TextFormField(
+            controller: _heightController,
+            decoration: InputDecoration(hintText: 'Height'),
+          ),
+        ),
       ],
     );
   }
@@ -287,7 +314,6 @@ class _UserProfileViewState extends State<UserProfileView> {
       file: _image!,
     );
 
-    // Refresh profile image after saving
     if (resp == "the data was saved successfully") {
       loadProfileImage();
     }
@@ -325,5 +351,17 @@ class _UserProfileViewState extends State<UserProfileView> {
         ],
       ),
     );
+  }
+
+  Future<void> _updateUserMetrics() async {
+    final fireStoreService = FireStoreService();
+    final username = await fireStoreService.getUserField('username');
+    final weight = _weightController.text;
+    final height = _heightController.text;
+    print(weight + " " + height);
+
+    await fireStoreService.updateUserMetrics(username, weight, height);
+
+    _loadUserData();
   }
 }

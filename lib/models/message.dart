@@ -24,6 +24,8 @@ class Message {
     this.reactions = const [],
   });
 
+  DateTime get date => timestamp.toDate();
+
   //convert to a map
   Map<String, dynamic> toMap() {
     return {

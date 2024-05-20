@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:testapp/services/auth/auth_service.dart';
 import 'package:testapp/services/crud/crud_exceptions.dart';
 import 'package:testapp/models/post.dart';
@@ -229,22 +230,33 @@ class FireStoreService {
     }
   }
 
-  // Read
-  /*Stream<QuerySnapshot> getUsersStream() {
-    final usersStream = users.orderBy('date_registered', descending: true).snapshots();
-    return usersStream;
-  }*/
-
-/*
-  Future<void> updateNote(String docID, String newnote) {
-    return notes.doc(docID).update({
-      'note': newnote,
-      'date': Timestamp.now(),
+  updateUserMetrics(String username, String weight, String height) {
+    return users.doc(username).update({
+      'weight': weight,
+      'height': height,
     });
   }
 
-  // Delete
-  Future<void> deleteNote(String docID, String newnote) {
-    return notes.doc(docID).delete();
-  } */
+  Future<void> deleteUser(String username) async {
+    try {
+      final FirebaseAuth _auth = FirebaseAuth.instance;
+      // Delete the user's authentication account from Firebase Authentication
+      User? user = _auth.currentUser;
+      if (user != null) {
+        await user.delete();
+      }
+
+      // Delete the user document from the "users" collection
+      await users.doc(username).delete();
+
+      // Delete the user document from the "userProfile" collection
+      await _firestore.collection('userProfile').doc(username).delete();
+
+      // Handle any additional data deletion if necessary
+    } catch (e) {
+      // Handle errors or exceptions
+      print('Error deleting user: $e');
+      throw e; // Rethrow the exception to propagate it upwards
+    }
+  }
 }

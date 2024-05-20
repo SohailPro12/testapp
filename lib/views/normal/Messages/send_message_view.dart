@@ -1,13 +1,19 @@
 import 'dart:io';
-
+import 'dart:typed_data';
+/* import 'package:flutter/services.dart';
+ */
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:testapp/services/chat/chat_service.dart';
 import 'package:testapp/services/crud2/firestore.dart';
 import 'package:video_player/video_player.dart';
-import 'package:gallery_saver/gallery_saver.dart';
+//import 'package:gallery_saver/gallery_saver.dart';
+import 'package:gal/gal.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+/* import 'package:path_provider/path_provider.dart';
+import 'package:dio/dio.dart'; */
 
 class ChatPage extends StatelessWidget {
   final String currentUsername;
@@ -188,7 +194,7 @@ class ChatPage extends StatelessWidget {
                                 context,
                                 messages[index].id,
                                 chatRoomID,
-                                data['message'],
+                                data['imageUrl'] ?? data['videoUrl'],
                                 isImage,
                                 isVideo,
                                 isCurrentUser,
@@ -356,15 +362,42 @@ class ChatPage extends StatelessWidget {
     print(fileUrl);
     if (fileUrl.contains('.jpg') || fileUrl.contains('.png')) {
       // It's an image
-      await GallerySaver.saveImage(fileUrl);
+      //await GallerySaver.saveImage(fileUrl);
+      print(fileUrl);
+      //await Gal.putImage(fileUrl);
+      // Import the image_gallery_saver package
+
+      await ImageGallerySaver.saveImage(fileUrl as Uint8List);
     } else if (fileUrl.contains('.mp4') || fileUrl.contains('.mov')) {
       // It's a video
-      await GallerySaver.saveVideo(fileUrl);
+      //await GallerySaver.saveVideo(fileUrl);
+      await Gal.putVideo(fileUrl);
     } else {
       // Unsupported file type
       print('Unsupported file type');
     }
   }
+  /*  void _downloadFile(String fileUrl) async {
+    try {
+      Dio dio = Dio();
+      final dir = await getApplicationDocumentsDirectory();
+      final savePath = dir.path + '/file.jpg';
+      await dio.download(fileUrl, savePath);
+      saveToGallery(savePath);
+    } catch (e) {
+      print('Error downloading file: $e');
+    }
+  }
+
+  MethodChannel _channel = MethodChannel('save_to_gallery');
+  Future<void> saveToGallery(String filePath) async {
+    try {
+      print(_channel.name);
+      await _channel.invokeMethod('saveToGallery', filePath);
+    } on PlatformException catch (e) {
+      print("Failed to save to gallery: '${e.message}'.");
+    }
+  } */
 
   void _editMessage(
     BuildContext context,

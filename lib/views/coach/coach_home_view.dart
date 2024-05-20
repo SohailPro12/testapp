@@ -6,7 +6,7 @@ import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/services/crud2/storage.dart';
 import 'package:testapp/views/coach/hub/coach_hub.dart';
 import 'package:testapp/views/conversation_view.dart';
-import 'package:testapp/views/fitme_ai_view.dart';
+import 'package:testapp/services/chat/fitme_ai_view.dart';
 
 class CoachHomeView extends StatelessWidget {
   CoachHomeView({super.key});
@@ -30,6 +30,32 @@ class CoachHomeView extends StatelessWidget {
                 Navigator.of(context).pop(true);
               },
               child: const Text('Log out'),
+            ),
+          ],
+        );
+      },
+    ).then((value) => value ?? false);
+  }
+
+  showDeleteAccountDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete Account'),
+          content: const Text('Are you sure you want to delete your account?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('Delete Account'),
             ),
           ],
         );
@@ -90,6 +116,18 @@ class CoachHomeView extends StatelessWidget {
                                 );
                               }
                               break;
+                            case MenuAction.deleteAccount:
+                              final shouldDeleteAccount =
+                                  await showDeleteAccountDialog(context);
+                              if (shouldDeleteAccount) {
+                                await _fireStoreService.deleteUser(username);
+                                // ignore: use_build_context_synchronously
+                                Navigator.of(context).pushNamedAndRemoveUntil(
+                                  loginRoute,
+                                  (_) => false,
+                                );
+                              }
+                              break;
                           }
                         },
                         itemBuilder: (context) {
@@ -97,6 +135,10 @@ class CoachHomeView extends StatelessWidget {
                             PopupMenuItem<MenuAction>(
                               value: MenuAction.logout,
                               child: Text('Log out'),
+                            ),
+                            PopupMenuItem<MenuAction>(
+                              value: MenuAction.deleteAccount,
+                              child: Text('Delete Account!'),
                             ),
                           ];
                         },

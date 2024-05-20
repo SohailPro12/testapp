@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:testapp/enums/menu_actions.dart';
 import 'package:testapp/services/auth/auth_service.dart';
 import 'package:testapp/constants/routes.dart';
+import 'package:testapp/services/chat/fitme_ai_view.dart';
 import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/services/crud2/storage.dart';
 import 'package:testapp/views/conversation_view.dart';
@@ -29,6 +30,32 @@ class UserHomeView extends StatelessWidget {
                 Navigator.of(context).pop(true);
               },
               child: const Text('Log out'),
+            ),
+          ],
+        );
+      },
+    ).then((value) => value ?? false);
+  }
+
+  showDeleteAccountDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete Account'),
+          content: const Text('Are you sure you want to delete your account?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('Delete Account'),
             ),
           ],
         );
@@ -100,6 +127,18 @@ class UserHomeView extends StatelessWidget {
                                 );
                               }
                               break;
+                            case MenuAction.deleteAccount:
+                              final shouldDeleteAccount =
+                                  await showDeleteAccountDialog(context);
+                              if (shouldDeleteAccount) {
+                                await _fireStoreService.deleteUser(username);
+                                // ignore: use_build_context_synchronously
+                                Navigator.of(context).pushNamedAndRemoveUntil(
+                                  loginRoute,
+                                  (_) => false,
+                                );
+                              }
+                              break;
                           }
                         },
                         itemBuilder: (context) {
@@ -107,6 +146,10 @@ class UserHomeView extends StatelessWidget {
                             PopupMenuItem<MenuAction>(
                               value: MenuAction.logout,
                               child: Text('Log out'),
+                            ),
+                            PopupMenuItem<MenuAction>(
+                              value: MenuAction.deleteAccount,
+                              child: Text('Delete Account!'),
                             ),
                           ];
                         },
@@ -183,8 +226,11 @@ class UserHomeView extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              // Implement navigation to FitMe AI view (placeholder for now)
-                              // Removed the SnackBar
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FitMeAIView(),
+                                  ));
                             },
                             icon: const Icon(Icons.fitness_center),
                             label: const Text('Explore FitMe AI'),
