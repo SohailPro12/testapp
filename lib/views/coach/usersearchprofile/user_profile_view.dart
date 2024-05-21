@@ -39,6 +39,35 @@ class _RequiredUsernameProfileViewState
   void initState() {
     super.initState();
     loadProfileImage();
+    _loadUserMetrics();
+  }
+
+  Row stats() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        statsColumn("Weight", w),
+        statsColumn("Height", h),
+      ],
+    );
+  }
+
+  var w = "";
+  var h = "";
+
+  void _loadUserMetrics() async {
+    final fireStoreService = FireStoreService();
+
+    final weight = await fireStoreService.getUserFieldByUsername(
+        'weight', widget.username);
+    final height = await fireStoreService.getUserFieldByUsername(
+        'height', widget.username);
+    setState(() {
+      // Initialize the controllers with the retrieved values
+      w = weight;
+      h = height;
+    });
+    print(w + h);
   }
 
   String? _profileImageUrl;
@@ -181,16 +210,6 @@ class _RequiredUsernameProfileViewState
           }
         },
       ),
-    );
-  }
-
-  Row stats() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        statsColumn("Streak", "160"),
-        statsColumn("Following", "1657"),
-      ],
     );
   }
 

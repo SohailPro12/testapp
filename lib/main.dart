@@ -1,6 +1,9 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 //import 'package:path/path.dart';
 import 'package:testapp/constants/routes.dart';
+import 'package:testapp/firebase_options.dart';
+import 'package:testapp/services/api/firebase_api.dart';
 import 'package:testapp/services/auth/auth_service.dart';
 import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/views/additionalinfo_view.dart';
@@ -14,9 +17,11 @@ import 'package:testapp/views/normal/user_home_view.dart';
 import 'package:testapp/views/register_view.dart';
 import 'package:testapp/views/verfy_email_view.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // ensure that the button is initialized
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseApi().initializeNotifications();
   runApp(
     MaterialApp(
         title: 'Flutter Demo',

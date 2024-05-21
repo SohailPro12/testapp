@@ -7,6 +7,7 @@ import 'package:testapp/models/post.dart';
 import 'package:testapp/services/crud2/storage.dart';
 import 'package:testapp/views/coach/hub/add_post.dart';
 import 'package:testapp/views/coach/hub/coach_posts.dart';
+import 'package:testapp/views/coach/hub/notifications_screen.dart';
 import 'package:testapp/views/coach/hub/post_desc.dart';
 import 'package:testapp/views/coach/profile/coach_profile_view.dart';
 import 'package:testapp/views/coach/profile/utils.dart';
@@ -65,6 +66,7 @@ class YourHubView extends StatelessWidget {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     Future<String> fetchUsername() async {
       try {
@@ -99,26 +101,36 @@ class YourHubView extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.video_library),
-            label: 'oiuou',
+            label: 'Videos',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: '',
+            label: 'Profile',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.workspace_premium),
-            label: '',
+            label: 'Premium',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notifications',
           ),
         ],
         selectedItemColor: Colors.red,
         unselectedItemColor: Colors.black,
         onTap: (index) {
-          if (index == 3) {
+          if (index == 4) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => const YourPostsView(
-                      typePosts: 'premium')), // Fetch premium posts
+                  builder: (context) => const NotificationScreen()),
+            );
+          } else if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      const YourPostsView(typePosts: 'premium')),
             );
           } else if (index == 2) {
             Navigator.push(

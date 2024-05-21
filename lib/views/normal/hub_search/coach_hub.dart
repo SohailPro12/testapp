@@ -234,6 +234,20 @@ class _CoachHubBodyState extends State<CoachHubBody> {
     }
   }
 
+  void _sendNotification(String coachUsername, String userUsername) async {
+    try {
+      await FirebaseFirestore.instance.collection('notifications').add({
+        'coachUsername': coachUsername,
+        'userUsername': userUsername,
+        'timestamp': FieldValue.serverTimestamp(),
+        'message': '$userUsername wants to view premium posts.',
+        'type': 'premium_request',
+      });
+    } catch (e) {
+      print('Error sending notification: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -375,12 +389,14 @@ class _CoachHubBodyState extends State<CoachHubBody> {
             itemBuilder: (context, index) {
               Post post = _posts[index];
               return InkWell(
-                onTap: () {
+                onTap: () async {
                   if (post.description.toLowerCase().contains('premium')) {
-                    // Handle premium post tap (optional)
+                    // Handle premium post tap
+                    _sendNotification(widget.username, _username);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('This is a premium post.'),
+                        content: Text(
+                            'This is a premium post. The coach has been notified.'),
                       ),
                     );
                   } else {

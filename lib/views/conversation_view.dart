@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:testapp/services/chat/chat_service.dart';
 import 'package:testapp/services/crud2/firestore.dart';
+import 'package:testapp/views/coach/usersearchprofile/user_profile_view.dart';
 import 'package:testapp/views/normal/Messages/send_message_view.dart';
 
 class ConversationListPage extends StatelessWidget {
@@ -91,9 +92,21 @@ class ConversationListPage extends StatelessWidget {
                                   String lastMessage =
                                       messageSnapshot.data ?? '';
                                   return ListTile(
-                                    leading: CircleAvatar(
-                                      backgroundImage:
-                                          NetworkImage(profilePhotoURL),
+                                    leading: GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                RequiredUsernameProfileView(
+                                                    username: otherUsername),
+                                          ),
+                                        );
+                                      },
+                                      child: CircleAvatar(
+                                        backgroundImage:
+                                            NetworkImage(profilePhotoURL),
+                                      ),
                                     ),
                                     title: FutureBuilder<String>(
                                       future: fetchFullname(otherUsername),
