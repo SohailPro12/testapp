@@ -3,7 +3,6 @@ import 'package:testapp/constants/routes.dart';
 import 'package:testapp/services/auth/auth_exceptions.dart';
 import 'package:testapp/services/auth/auth_service.dart';
 import 'package:testapp/services/crud2/firestore.dart';
-import 'package:testapp/services/notifications/save_token.dart';
 import 'package:testapp/utilities/dialogs/error_dialog.dart';
 import 'package:testapp/views/coach/coach_home_view.dart';
 import 'package:testapp/views/normal/user_home_view.dart';
