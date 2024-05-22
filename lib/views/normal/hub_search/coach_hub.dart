@@ -39,10 +39,12 @@ class _CoachHubBodyState extends State<CoachHubBody> {
   int _numberOfFollowers = 0;
   int _numberOfPosts = 0;
   bool _isFollowing = false;
+  bool _hasPremiumAccess = false;
 
   @override
   void initState() {
     super.initState();
+    _fetchUserPremiumStatus();
     _fetchPosts();
     _fetchProfileImage();
     _fetchBannerImage();
@@ -60,9 +62,25 @@ class _CoachHubBodyState extends State<CoachHubBody> {
       setState(() {
         _username = username;
       });
-      ;
     } catch (e) {
       print('Error fetching username: $e');
+    }
+  }
+
+  void _fetchUserPremiumStatus() async {
+    try {
+      String username = await _fireStoreService.getUserField('username');
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(username)
+          .get();
+      print(username);
+      setState(() {
+        _hasPremiumAccess = userDoc.get('hasPremiumAccess') ?? false;
+        print(_hasPremiumAccess);
+      });
+    } catch (e) {
+      print('Error fetching user premium status: $e');
     }
   }
 
@@ -242,6 +260,7 @@ class _CoachHubBodyState extends State<CoachHubBody> {
         'timestamp': FieldValue.serverTimestamp(),
         'message': '$userUsername wants to view premium posts.',
         'type': 'premium_request',
+        'hasPremiumAccess': false,
       });
     } catch (e) {
       print('Error sending notification: $e');
@@ -390,7 +409,8 @@ class _CoachHubBodyState extends State<CoachHubBody> {
               Post post = _posts[index];
               return InkWell(
                 onTap: () async {
-                  if (post.description.toLowerCase().contains('premium')) {
+                  if (post.description.toLowerCase().contains('premium') &&
+                      !_hasPremiumAccess) {
                     // Handle premium post tap
                     _sendNotification(widget.username, _username);
                     ScaffoldMessenger.of(context).showSnackBar(

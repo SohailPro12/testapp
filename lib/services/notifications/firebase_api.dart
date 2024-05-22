@@ -1,4 +1,4 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
+/* import 'package:firebase_messaging/firebase_messaging.dart';
 
 class FirebaseApi {
   // create instance of firebase messaging
@@ -17,3 +17,4 @@ class FirebaseApi {
   // function to handle recieved messages
   // function to initialize foreground and background settings
 }
+ */

@@ -4,6 +4,29 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class NotificationScreen extends StatelessWidget {
   const NotificationScreen({Key? key}) : super(key: key);
 
+  Future<void> _grantPremiumAccess(String userId) async {
+    try {
+      // Update the user's document to grant premium access
+      await FirebaseFirestore.instance.collection('users').doc(userId).update({
+        'hasPremiumAccess': true,
+      });
+      await FirebaseFirestore.instance
+          .collection('notifications')
+          .where('userUsername', isEqualTo: userId)
+          .get() // Use .get() to fetch documents matching the query
+          .then((querySnapshot) {
+        querySnapshot.docs.forEach((doc) {
+          doc.reference.update({
+            'hasPremiumAccess': true,
+          });
+        });
+      });
+      print('Premium access granted.');
+    } catch (error) {
+      print('Failed to grant premium access: $error');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,14 +47,19 @@ class NotificationScreen extends StatelessWidget {
             itemCount: notifications.length,
             itemBuilder: (context, index) {
               var notification = notifications[index];
+              bool hasPremiumAccess = notification['hasPremiumAccess'] ?? false;
+
               return ListTile(
                 title: Text(notification['message']),
                 subtitle: Text(notification['timestamp'].toDate().toString()),
                 trailing: ElevatedButton(
-                  onPressed: () {
-                    _respondToRequest(notification.id);
-                  },
-                  child: const Text('Give access'),
+                  onPressed: hasPremiumAccess
+                      ? null
+                      : () {
+                          _grantPremiumAccess(notification['userUsername']);
+                        },
+                  child: Text(
+                      hasPremiumAccess ? 'Access Granted' : 'Grant Access'),
                 ),
               );
             },
@@ -39,18 +67,5 @@ class NotificationScreen extends StatelessWidget {
         },
       ),
     );
-  }
-
-  void _respondToRequest(String notificationId) {
-    FirebaseFirestore.instance
-        .collection('notifications')
-        .doc(notificationId)
-        .update({
-      'responded': true,
-    }).then((_) {
-      print('Notification responded');
-    }).catchError((error) {
-      print('Failed to respond to notification: $error');
-    });
   }
 }
