@@ -649,6 +649,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  liquid_swipe:
+    dependency: "direct main"
+    description:
+      name: liquid_swipe
+      sha256: "04277568a4a5a5e8e1dfa8b222b4e497e294cf64e72113d936fcc54ef0e29149"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   logging:
     dependency: transitive
     description:
@@ -858,7 +866,7 @@ packages:
     source: hosted
     version: "3.4.0"
   shared_preferences:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: shared_preferences
       sha256: d3bbe5553a986e83980916ded2f0b435ef2e1893dfaa29d5a7a790d0eca12180
