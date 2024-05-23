@@ -6,10 +6,9 @@ import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/utilities/dialogs/error_dialog.dart';
 import 'package:testapp/views/coach/coach_home_view.dart';
 import 'package:testapp/views/normal/user_home_view.dart';
-//import 'package:testapp/views/normal/user_home_view.dart';
+import 'package:testapp/views/password_reset_view.dart'; // Import the password reset view
 
 class LoginView extends StatefulWidget {
-  // ignore: use_key_in_widget_constructors
   const LoginView({Key? key});
 
   @override
@@ -39,18 +38,18 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // White background color
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
-          'Welcome! Login to your account', // Updated title
+          'Welcome! Login to your account',
           style: TextStyle(
-            color: Colors.blue, // Blue header color
+            color: Colors.blue,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.transparent, // Transparent app bar
-        elevation: 0, // No shadow
-        centerTitle: true, // Center align the title
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -60,9 +59,9 @@ class _LoginViewState extends State<LoginView> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'assets/images/loginImage.jpg', // Replace 'your_image.png' with your image asset path
+                  'assets/images/loginImage.jpg',
                   height: 200,
-                  filterQuality: FilterQuality.high, // Adjust height as needed
+                  filterQuality: FilterQuality.high,
                 ),
                 const SizedBox(height: 20),
                 TextField(
@@ -72,12 +71,11 @@ class _LoginViewState extends State<LoginView> {
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     hintText: 'Enter your email',
-                    hintStyle:
-                        const TextStyle(color: Colors.grey), // Grey hint color
-                    fillColor: Colors.grey[200], // Light grey background
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    fillColor: Colors.grey[200],
                     filled: true,
                     border: OutlineInputBorder(
-                      borderSide: BorderSide.none, // No border
+                      borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                   ),
@@ -90,12 +88,11 @@ class _LoginViewState extends State<LoginView> {
                   autocorrect: false,
                   decoration: InputDecoration(
                     hintText: 'Enter your password',
-                    hintStyle:
-                        const TextStyle(color: Colors.grey), // Grey hint color
-                    fillColor: Colors.grey[200], // Light grey background
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    fillColor: Colors.grey[200],
                     filled: true,
                     border: OutlineInputBorder(
-                      borderSide: BorderSide.none, // No border
+                      borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                     suffixIcon: GestureDetector(
@@ -115,7 +112,6 @@ class _LoginViewState extends State<LoginView> {
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
-                  // Wrapping login button in SizedBox with specified width
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () async {
@@ -132,20 +128,14 @@ class _LoginViewState extends State<LoginView> {
                           final userData =
                               await _fireStoreService.getUserData(email);
                           final userType = userData['type'] as String;
-                          // Save FCM token
-                          /* await saveFcmToken(userData['username']); */
                           if (userType == 'coach') {
-                            // ignore: use_build_context_synchronously
                             Navigator.pushReplacement(
-                                // ignore: use_build_context_synchronously
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => CoachHomeView(),
                                 ));
                           } else {
-                            // ignore: use_build_context_synchronously
                             Navigator.pushReplacement(
-                              // ignore: use_build_context_synchronously
                               context,
                               MaterialPageRoute(
                                 builder: (context) => UserHomeView(),
@@ -153,37 +143,30 @@ class _LoginViewState extends State<LoginView> {
                             );
                           }
                         } else {
-                          // ignore: use_build_context_synchronously
                           Navigator.of(context).pushNamedAndRemoveUntil(
                             verifyemailRoute,
                             (route) => false,
                           );
                         }
                       } on UserNotFoundAuthException {
-                        // ignore: use_build_context_synchronously
                         await showErrorDialog(
-                          // ignore: use_build_context_synchronously
                           context,
                           'Invalid Name or Password! Please enter the right information.',
                         );
                       } on WrongPasswordAuthException {
-                        // ignore: use_build_context_synchronously
                         await showErrorDialog(
-                          // ignore: use_build_context_synchronously
                           context,
                           'Please complete all the required information.',
                         );
                       } on GenericAuthException {
-                        // ignore: use_build_context_synchronously
                         await showErrorDialog(
-                          // ignore: use_build_context_synchronously
                           context,
                           "Authentication failed",
                         );
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue, // Blue button color
+                      backgroundColor: Colors.blue,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
@@ -204,8 +187,19 @@ class _LoginViewState extends State<LoginView> {
                   },
                   child: const Text(
                     "Not registered yet? Please register here!",
-                    style: TextStyle(
-                        color: Colors.lightBlue), // Light blue text color
+                    style: TextStyle(color: Colors.lightBlue),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => PasswordResetView(),
+                    ));
+                  },
+                  child: const Text(
+                    "Forgot Password?",
+                    style: TextStyle(color: Colors.lightBlue),
                   ),
                 ),
               ],
