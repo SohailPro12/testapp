@@ -93,7 +93,7 @@ class UserHomeView extends StatelessWidget {
                 return Scaffold(
                   appBar: AppBar(
                     title: const Text('Home'),
-                    backgroundColor: const Color.fromARGB(255, 222, 243, 33),
+                    backgroundColor: const Color.fromARGB(255, 243, 72, 33),
                     actions: [
                       CircleAvatar(
                         // Assuming you have a user profile picture
@@ -110,7 +110,7 @@ class UserHomeView extends StatelessWidget {
                             ),
                           );
                         },
-                        icon: Icon(Icons.message), // Message icon
+                        icon: const Icon(Icons.message), // Message icon
                       ),
                       PopupMenuButton<MenuAction>(
                         onSelected: (value) async {
@@ -229,7 +229,7 @@ class UserHomeView extends StatelessWidget {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => FitMeAIView(),
+                                    builder: (context) => const FitMeAIView(),
                                   ));
                             },
                             icon: const Icon(Icons.fitness_center),
