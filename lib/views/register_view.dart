@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:testapp/services/auth/auth_exceptions.dart';
 import 'package:testapp/services/auth/auth_service.dart';
@@ -7,8 +9,7 @@ import 'package:testapp/utilities/dialogs/error_dialog.dart';
 import 'package:testapp/constants/routes.dart';
 
 class RegisterView extends StatefulWidget {
-  // ignore: use_key_in_widget_constructors
-  const RegisterView({Key? key});
+  const RegisterView({super.key});
 
   @override
   State<RegisterView> createState() => _RegisterViewState();
@@ -45,15 +46,80 @@ class _RegisterViewState extends State<RegisterView> {
     super.dispose();
   }
 
+  Future<void> _registerUser() async {
+    final email = _email.text;
+    final password = _password.text;
+    final username = _username.text;
+
+    try {
+      // Check if the username already exists
+      bool usernameExists = await myDB.checkUsernameExists(username);
+      if (usernameExists) {
+        setState(() {
+          _usernameError = true;
+        });
+        return;
+      } else {
+        setState(() {
+          _usernameError = false;
+        });
+      }
+
+      // Create the user
+      await AuthService.firebase().createUser(
+        email: email,
+        password: password,
+      );
+
+      // Add user data to Firestore
+      await myDB.addUser(username, email, _dob);
+
+      // Navigate to additional info route
+      Navigator.of(context).pushNamed(
+        additionalInfoRoute,
+        arguments: {'username': username},
+      );
+    } on WeakPasswordAuthException {
+      await showErrorDialog(
+        context,
+        'Weak password',
+      );
+    } on EmailAlreadyInUseAuthException {
+      await showErrorDialog(
+        context,
+        'Email is already in use',
+      );
+    } on InvalidEmailAuthException {
+      await showErrorDialog(
+        context,
+        'Invalid Email',
+      );
+    } on GenericAuthException {
+      await showErrorDialog(
+        context,
+        "Registration failed",
+      );
+    } on UsernameAlreadyExistsException {
+      setState(() {
+        _usernameError = true;
+      });
+    } catch (e) {
+      await showErrorDialog(
+        context,
+        "An error occurred. Please try again.",
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF5F5F5), // Light background color
       appBar: AppBar(
         title: const Text(
           'Create New Account',
           style: TextStyle(
-            color: Colors.blue,
+            color: Color(0xFFFF0000), // Red for energy and intensity
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -81,7 +147,7 @@ class _RegisterViewState extends State<RegisterView> {
                   decoration: InputDecoration(
                     hintText: 'Enter your username',
                     hintStyle: const TextStyle(color: Colors.grey),
-                    fillColor: Colors.grey[200],
+                    fillColor: const Color(0xFFFFEBEE), // Light red background
                     filled: true,
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,
@@ -100,7 +166,7 @@ class _RegisterViewState extends State<RegisterView> {
                   decoration: InputDecoration(
                     hintText: 'Enter your email',
                     hintStyle: const TextStyle(color: Colors.grey),
-                    fillColor: Colors.grey[200],
+                    fillColor: const Color(0xFFFFEBEE), // Light red background
                     filled: true,
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,
@@ -118,7 +184,7 @@ class _RegisterViewState extends State<RegisterView> {
                   decoration: InputDecoration(
                     hintText: 'Enter your password',
                     hintStyle: const TextStyle(color: Colors.grey),
-                    fillColor: Colors.grey[200],
+                    fillColor: const Color(0xFFFFEBEE), // Light red background
                     filled: true,
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,
@@ -139,70 +205,18 @@ class _RegisterViewState extends State<RegisterView> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () async {
-                    final email = _email.text;
-                    final password = _password.text;
-                    try {
-                      await AuthService.firebase().createUser(
-                        email: email,
-                        password: password,
-                      );
-                    } on WeakPasswordAuthException {
-                      // ignore: use_build_context_synchronously
-                      await showErrorDialog(
-                        // ignore: use_build_context_synchronously
-                        context,
-                        'Weak password',
-                      );
-                    } on EmailAlreadyInUseAuthException {
-                      // ignore: use_build_context_synchronously
-                      await showErrorDialog(
-                        // ignore: use_build_context_synchronously
-                        context,
-                        'Email is already in use',
-                      );
-                    } on InvalidEmailAuthException {
-                      // ignore: use_build_context_synchronously
-                      await showErrorDialog(
-                        // ignore: use_build_context_synchronously
-                        context,
-                        'Invalid Email',
-                      );
-                    } on GenericAuthException {
-                      // ignore: use_build_context_synchronously
-                      await showErrorDialog(
-                        // ignore: use_build_context_synchronously
-                        context,
-                        "Registration failed",
-                      );
-                    } on UsernameAlreadyExistsException {
-                      setState(() {
-                        _usernameError = true;
-                      });
-                    }
-                    try {
-                      await myDB.addUser(_username.text, _email.text, _dob);
-
-                      // ignore: use_build_context_synchronously
-                      Navigator.of(context).pushNamed(
-                        additionalInfoRoute,
-                        arguments: {'username': _username.text},
-                      );
-                    } on UsernameAlreadyExistsException {
-                      setState(() {
-                        _usernameError = true;
-                      });
-                    }
-                  },
+                  onPressed: _registerUser,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor:
+                        const Color(0xFFD32F2F), // Dark red for intensity
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
+                    padding: const EdgeInsets.symmetric(vertical: 15),
                   ),
                   child: const Text(
                     'Sign up',
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -213,9 +227,10 @@ class _RegisterViewState extends State<RegisterView> {
                   },
                   child: const Text(
                     "Already have an account?",
-                    style: TextStyle(color: Colors.lightBlue),
+                    style:
+                        TextStyle(color: Color(0xFFFF0000)), // Red text color
                   ),
-                )
+                ),
               ],
             ),
           ),

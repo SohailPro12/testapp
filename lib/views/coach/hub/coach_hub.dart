@@ -66,7 +66,6 @@ class YourHubView extends StatelessWidget {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     Future<String> fetchUsername() async {
       try {
@@ -81,7 +80,7 @@ class YourHubView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Hub'),
-        backgroundColor: const Color.fromARGB(255, 222, 243, 330),
+        backgroundColor: const Color.fromARGB(255, 243, 72, 33),
       ),
       body: const YourHubBody(),
       floatingActionButton: FloatingActionButton(
@@ -150,9 +149,11 @@ class YourHubView extends StatelessWidget {
 }
 
 class YourHubBody extends StatefulWidget {
+  // ignore: use_key_in_widget_constructors
   const YourHubBody({Key? key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _YourHubBodyState createState() => _YourHubBodyState();
 }
 
@@ -164,7 +165,7 @@ class _YourHubBodyState extends State<YourHubBody> {
   String _fullName = '';
   String _username = '';
 
-  List<Post> _posts = [];
+  final List<Post> _posts = [];
 
   void _fetchPosts(String username) async {
     try {
@@ -204,8 +205,11 @@ class _YourHubBodyState extends State<YourHubBody> {
     try {
       String username = await _fireStoreService.getUserField('username');
 
-      int numberOfFollowers = await _fireStoreService
-          .getFieldByUsernameCollection("followers", username, "userProfile");
+      int numberOfFollowers =
+          await _fireStoreService.getFieldByUsernameCollection(
+                  "followers", username, "userProfile") ??
+              0;
+      // ignore: avoid_print
       print(numberOfFollowers);
 
       setState(() {
@@ -217,6 +221,7 @@ class _YourHubBodyState extends State<YourHubBody> {
       _fetchFullName();
       _fetchBannerImage();
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching username: $e');
     }
   }
@@ -343,7 +348,7 @@ class _YourHubBodyState extends State<YourHubBody> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.people),
+                  const Icon(Icons.people),
                   const SizedBox(width: 8),
                   Text(
                     '$_numberOfFollowers',
@@ -355,7 +360,7 @@ class _YourHubBodyState extends State<YourHubBody> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.post_add),
+                  const Icon(Icons.post_add),
                   const SizedBox(width: 8),
                   Text(
                     '$_numberOfPosts',
@@ -377,8 +382,8 @@ class _YourHubBodyState extends State<YourHubBody> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  'Your Latest Videos',
+                const Text(
+                  'Your Latest Posts',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,

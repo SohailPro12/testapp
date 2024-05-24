@@ -1,6 +1,8 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testapp/constants/routes.dart';
+import 'package:testapp/firebase_options.dart';
 import 'package:testapp/intro_screen.dart';
 import 'package:testapp/services/auth/auth_service.dart';
 import 'package:testapp/services/crud2/firestore.dart';
@@ -17,6 +19,7 @@ import 'package:testapp/views/verfy_email_view.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
     MaterialApp(
         title: 'Flutter Demo',
@@ -46,7 +49,7 @@ class HomePage extends StatelessWidget {
 
   Future<bool> _checkIfFirstRun() async {
     final prefs = await SharedPreferences.getInstance();
-    final isFirstRun = prefs.getBool('isFirstRun') ?? true;
+    final isFirstRun = true;
     if (isFirstRun) {
       prefs.setBool('isFirstRun', false);
     }

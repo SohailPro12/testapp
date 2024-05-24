@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -35,6 +37,7 @@ class _CoachProfileViewState extends State<CoachProfileView> {
       loadUsername();
     }
     _fetchNumberFollowers();
+    _fetchNumberCustomers();
   }
 
   void loadUsername() async {
@@ -75,7 +78,7 @@ class _CoachProfileViewState extends State<CoachProfileView> {
             length: 2,
             child: Scaffold(
               appBar: AppBar(
-                backgroundColor: const Color.fromARGB(255, 200, 202, 70),
+                backgroundColor: const Color.fromARGB(255, 243, 72, 33),
                 titleTextStyle: const TextStyle(
                   color: Colors.white,
                 ),
@@ -191,12 +194,29 @@ class _CoachProfileViewState extends State<CoachProfileView> {
     }
   }
 
+  int _numberOfCustomers = 0;
+  void _fetchNumberCustomers() async {
+    try {
+      String username = await _fireStoreService.getUserField('username');
+
+      int numberOfCustomers = await _fireStoreService.countNumberOfCustomer(
+          "notifications", "hasPremiumAccess", true, "coachUsername", username);
+      print(numberOfCustomers);
+
+      setState(() {
+        _numberOfCustomers = numberOfCustomers;
+      });
+    } catch (e) {
+      print('Error fetching number of customers: $e');
+    }
+  }
+
   Row stats() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         statsColumn("Followers", _numberOfFollowers.toString()),
-        statsColumn("Customers", "0"),
+        statsColumn("Customers", _numberOfCustomers.toString()),
       ],
     );
   }

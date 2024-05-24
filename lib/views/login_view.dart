@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:testapp/constants/routes.dart';
 import 'package:testapp/services/auth/auth_exceptions.dart';
@@ -9,7 +11,7 @@ import 'package:testapp/views/normal/user_home_view.dart';
 import 'package:testapp/views/password_reset_view.dart'; // Import the password reset view
 
 class LoginView extends StatefulWidget {
-  const LoginView({Key? key});
+  const LoginView({super.key});
 
   @override
   State<LoginView> createState() => _LoginViewState();
@@ -38,12 +40,12 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF5F5F5), // Light background color
       appBar: AppBar(
         title: const Text(
           'Welcome! Login to your account',
           style: TextStyle(
-            color: Colors.blue,
+            color: Color(0xFFFF0000), // Red for energy and intensity
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -69,15 +71,17 @@ class _LoginViewState extends State<LoginView> {
                   enableSuggestions: false,
                   autocorrect: false,
                   keyboardType: TextInputType.emailAddress,
+                  style: const TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: 'Enter your email',
                     hintStyle: const TextStyle(color: Colors.grey),
-                    fillColor: Colors.grey[200],
+                    fillColor: const Color(0xFFFFEBEE), // Light red background
                     filled: true,
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10.0),
                     ),
+                    prefixIcon: const Icon(Icons.email, color: Colors.grey),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -86,15 +90,17 @@ class _LoginViewState extends State<LoginView> {
                   obscureText: !_isPasswordVisible,
                   enableSuggestions: false,
                   autocorrect: false,
+                  style: const TextStyle(color: Colors.black),
                   decoration: InputDecoration(
                     hintText: 'Enter your password',
                     hintStyle: const TextStyle(color: Colors.grey),
-                    fillColor: Colors.grey[200],
+                    fillColor: const Color(0xFFFFEBEE), // Light red background
                     filled: true,
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10.0),
                     ),
+                    prefixIcon: const Icon(Icons.lock, color: Colors.grey),
                     suffixIcon: GestureDetector(
                       onTap: () {
                         setState(() {
@@ -130,10 +136,11 @@ class _LoginViewState extends State<LoginView> {
                           final userType = userData['type'] as String;
                           if (userType == 'coach') {
                             Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => CoachHomeView(),
-                                ));
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CoachHomeView(),
+                              ),
+                            );
                           } else {
                             Navigator.pushReplacement(
                               context,
@@ -166,14 +173,16 @@ class _LoginViewState extends State<LoginView> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor:
+                          const Color(0xFFD32F2F), // Dark red for intensity
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
                     ),
                     child: const Text(
                       'Login',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
                   ),
                 ),
@@ -187,19 +196,21 @@ class _LoginViewState extends State<LoginView> {
                   },
                   child: const Text(
                     "Not registered yet? Please register here!",
-                    style: TextStyle(color: Colors.lightBlue),
+                    style:
+                        TextStyle(color: Color(0xFFFF0000)), // Red text color
                   ),
                 ),
                 const SizedBox(height: 20),
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => PasswordResetView(),
+                      builder: (context) => const PasswordResetView(),
                     ));
                   },
                   child: const Text(
                     "Forgot Password?",
-                    style: TextStyle(color: Colors.lightBlue),
+                    style:
+                        TextStyle(color: Color(0xFFFF0000)), // Red text color
                   ),
                 ),
               ],
