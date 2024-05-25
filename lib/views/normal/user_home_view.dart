@@ -6,7 +6,8 @@ import 'package:testapp/services/chat/fitme_ai_view.dart';
 import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/services/crud2/storage.dart';
 import 'package:testapp/views/conversation_view.dart';
-import 'package:testapp/views/normal/coaches_list.dart';
+
+import 'package:testapp/views/normal/combind.dart';
 
 class UserHomeView extends StatelessWidget {
   UserHomeView({super.key});
@@ -30,32 +31,6 @@ class UserHomeView extends StatelessWidget {
                 Navigator.of(context).pop(true);
               },
               child: const Text('Log out'),
-            ),
-          ],
-        );
-      },
-    ).then((value) => value ?? false);
-  }
-
-  showDeleteAccountDialog(BuildContext context) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Delete Account'),
-          content: const Text('Are you sure you want to delete your account?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: const Text('Delete Account'),
             ),
           ],
         );
@@ -91,155 +66,137 @@ class UserHomeView extends StatelessWidget {
               } else {
                 final String? profileImageUrl = imageSnapshot.data;
                 return Scaffold(
-                  appBar: AppBar(
-                    title: const Text('Home'),
-                    backgroundColor: const Color.fromARGB(255, 222, 243, 33),
-                    actions: [
-                      CircleAvatar(
-                        // Assuming you have a user profile picture
-                        backgroundImage: profileImageUrl != null
-                            ? NetworkImage(profileImageUrl) as ImageProvider
-                            : const AssetImage('assets/images/nopp.jpeg'),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ConversationListPage(),
-                            ),
-                          );
-                        },
-                        icon: Icon(Icons.message), // Message icon
-                      ),
-                      PopupMenuButton<MenuAction>(
-                        onSelected: (value) async {
-                          switch (value) {
-                            case MenuAction.logout:
-                              final shouldLogout =
-                                  await showLogOutDialog(context);
-                              if (shouldLogout) {
-                                AuthService.firebase().logOut();
-                                // ignore: use_build_context_synchronously
-                                Navigator.of(context).pushNamedAndRemoveUntil(
-                                  loginRoute,
-                                  (_) => false,
-                                );
-                              }
-                              break;
-                            case MenuAction.deleteAccount:
-                              final shouldDeleteAccount =
-                                  await showDeleteAccountDialog(context);
-                              if (shouldDeleteAccount) {
-                                await _fireStoreService.deleteUser(username);
-                                // ignore: use_build_context_synchronously
-                                Navigator.of(context).pushNamedAndRemoveUntil(
-                                  loginRoute,
-                                  (_) => false,
-                                );
-                              }
-                              break;
-                          }
-                        },
-                        itemBuilder: (context) {
-                          return const [
-                            PopupMenuItem<MenuAction>(
-                              value: MenuAction.logout,
-                              child: Text('Log out'),
-                            ),
-                            PopupMenuItem<MenuAction>(
-                              value: MenuAction.deleteAccount,
-                              child: Text('Delete Account!'),
-                            ),
-                          ];
-                        },
-                      ),
-                    ],
-                  ),
-                  body: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Text(
-                            'Welcome $fullName!',
-                            style: const TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 175, 150,
-                                  76), // Change the color to green for enthusiasm
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+                    appBar: AppBar(
+                      title: const Text('Home'),
+                      backgroundColor: const Color.fromARGB(255, 222, 243, 33),
+                      actions: [
+                        CircleAvatar(
+                          // Assuming you have a user profile picture
+                          backgroundImage: profileImageUrl != null
+                              ? NetworkImage(profileImageUrl) as ImageProvider
+                              : const AssetImage('assets/images/nopp.jpeg'),
                         ),
-                        const SizedBox(height: 20),
-                        // Use individual Expanded widgets with icons
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.of(context)
-                                  .pushNamed(userProfileViewRoute);
-                            },
-                            icon: const Icon(Icons.person),
-                            label: const Text('View Profile'),
-                          ),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ConversationListPage(),
+                              ),
+                            );
+                          },
+                          icon: Icon(Icons.message), // Message icon
                         ),
-                        const SizedBox(height: 20),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              //Navigator.pushNrgteamed(context, '/coach/ma routine');
-                            },
-                            icon: const Icon(Icons.message),
-                            label: const Text('créer ma routine'),
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              // Implement navigation to routine pre
-                            },
-                            icon: const Icon(Icons.hub),
-                            label: const Text('routine prédéfinie'),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => const CoachesListView(),
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.hub),
-                            label: const Text('coach'),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => FitMeAIView(),
-                                  ));
-                            },
-                            icon: const Icon(Icons.fitness_center),
-                            label: const Text('Explore FitMe AI'),
-                          ),
+                        PopupMenuButton<MenuAction>(
+                          onSelected: (value) async {
+                            switch (value) {
+                              case MenuAction.logout:
+                                final shouldLogout =
+                                    await showLogOutDialog(context);
+                                if (shouldLogout) {
+                                  AuthService.firebase().logOut();
+                                  // ignore: use_build_context_synchronously
+                                  Navigator.of(context).pushNamedAndRemoveUntil(
+                                    loginRoute,
+                                    (_) => false,
+                                  );
+                                }
+                                break;
+                              case MenuAction.deleteAccount:
+                              // TODO: Handle this case.
+                            }
+                          },
+                          itemBuilder: (context) {
+                            return const [
+                              PopupMenuItem<MenuAction>(
+                                value: MenuAction.logout,
+                                child: Text('Log out'),
+                              ),
+                            ];
+                          },
                         ),
                       ],
                     ),
-                  ),
-                );
+                    body: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Text(
+                              'Welcome $fullName!',
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 175, 150,
+                                    76), // Change the color to green for enthusiasm
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          // Use individual Expanded widgets with icons
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.of(context)
+                                    .pushNamed(userProfileViewRoute);
+                              },
+                              icon: const Icon(Icons.person),
+                              label: const Text('View Profile'),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CombinedPage(),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.message),
+                              label: const Text('créer ma routine'),
+                            ),
+                          ),
+
+                          const SizedBox(height: 20),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ConversationListPage(),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.hub),
+                              label: const Text('coach'),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => FitMeAIView(),
+                                    ));
+                              },
+                              icon: const Icon(Icons.fitness_center),
+                              label: const Text('Explore FitMe AI'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ));
               }
             },
           );

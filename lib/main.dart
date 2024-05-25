@@ -11,7 +11,6 @@ import 'package:testapp/views/coach/coach_additional_info.dart';
 import 'package:testapp/views/coach/coach_home_view.dart';
 import 'package:testapp/views/coach/profile/coach_profile_view.dart';
 import 'package:testapp/views/login_view.dart';
-import 'package:testapp/views/normal/ma_routine.dart';
 import 'package:testapp/views/normal/profile/user_profile_view.dart';
 import 'package:testapp/views/normal/user_home_view.dart';
 import 'package:testapp/views/register_view.dart';
@@ -40,7 +39,6 @@ Future<void> main() async {
           iAmANormalUserRoute: (context) => UserHomeView(),
           coachProfileViewRoute: (context) => const CoachProfileView(),
           iAmACoachRoute: (context) => CoachHomeView(),
-          routineuser: (context) => const WeeklyPlanner(),
           userProfileViewRoute: (context) => const UserProfileView(),
         }),
   );
