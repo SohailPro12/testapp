@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,7 +13,7 @@ import 'package:testapp/views/normal/profile/about.dart';
 import 'package:testapp/views/normal/profile/contact.dart';
 
 class UserProfileView extends StatefulWidget {
-  const UserProfileView({Key? key}) : super(key: key);
+  const UserProfileView({super.key});
 
   @override
   State<UserProfileView> createState() => _UserProfileViewState();
@@ -46,14 +48,13 @@ class _UserProfileViewState extends State<UserProfileView> {
 
   void _loadUserMetrics() async {
     final fireStoreService = FireStoreService();
-    final username = await fireStoreService.getUserField('username');
 
     final weight = await fireStoreService.getUserField('weight');
     final height = await fireStoreService.getUserField('height');
     setState(() {
       // Initialize the controllers with the retrieved values
-      _weightController.text = weight ?? '';
-      _heightController.text = height ?? '';
+      _weightController.text = weight;
+      _heightController.text = height;
     });
   }
 
@@ -100,7 +101,7 @@ class _UserProfileViewState extends State<UserProfileView> {
             length: tabs.length,
             child: Scaffold(
               appBar: AppBar(
-                backgroundColor: const Color.fromARGB(255, 200, 202, 70),
+                backgroundColor: const Color.fromARGB(255, 243, 72, 33),
                 titleTextStyle: const TextStyle(
                   color: Colors.white,
                 ),
@@ -203,11 +204,11 @@ class _UserProfileViewState extends State<UserProfileView> {
 
   void _loadUserData() async {
     final FireStoreService fireStoreService = FireStoreService();
-    String _username = await fireStoreService.getUserField('username');
+    String username = await fireStoreService.getUserField('username');
 
     final userDoc = await FirebaseFirestore.instance
         .collection('users')
-        .doc(_username)
+        .doc(username)
         .get();
     final userData = userDoc.data() as Map<String, dynamic>;
 
@@ -242,9 +243,9 @@ class _UserProfileViewState extends State<UserProfileView> {
     _lastLoginDate = today;
 
     final FireStoreService fireStoreService = FireStoreService();
-    String _username = await fireStoreService.getUserField('username');
+    String username = await fireStoreService.getUserField('username');
     final userDoc =
-        FirebaseFirestore.instance.collection('users').doc(_username);
+        FirebaseFirestore.instance.collection('users').doc(username);
     await userDoc.update({
       '_streak': _streak,
       'lastLoginDate': Timestamp.fromDate(_lastLoginDate),
@@ -257,19 +258,19 @@ class _UserProfileViewState extends State<UserProfileView> {
       children: [
         statsColumn("Streak", _streak.toString()),
         const SizedBox(width: 20), // Add space here
-        Container(
+        SizedBox(
           width: 80, // Adjust the width as needed
           child: TextFormField(
             controller: _weightController,
-            decoration: InputDecoration(hintText: 'Weight'),
+            decoration: const InputDecoration(hintText: 'Weight'),
           ),
         ),
         const SizedBox(width: 10), // Add space here
-        Container(
+        SizedBox(
           width: 80, // Adjust the width as needed
           child: TextFormField(
             controller: _heightController,
-            decoration: InputDecoration(hintText: 'Height'),
+            decoration: const InputDecoration(hintText: 'Height'),
           ),
         ),
       ],
@@ -358,7 +359,6 @@ class _UserProfileViewState extends State<UserProfileView> {
     final username = await fireStoreService.getUserField('username');
     final weight = _weightController.text;
     final height = _heightController.text;
-    print(weight + " " + height);
 
     await fireStoreService.updateUserMetrics(username, weight, height);
 

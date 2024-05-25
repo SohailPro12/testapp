@@ -259,4 +259,23 @@ class FireStoreService {
       throw e; // Rethrow the exception to propagate it upwards
     }
   }
+
+  Future<bool> checkUsernameExists(String username) async {
+    final FirebaseFirestore _db = FirebaseFirestore.instance;
+    final querySnapshot = await _db
+        .collection('users')
+        .where('username', isEqualTo: username)
+        .get();
+    return querySnapshot.docs.isNotEmpty;
+  }
+
+  Future<int> countNumberOfCustomer(String collection, String field1,
+      dynamic value1, String field2, dynamic value2) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection(collection)
+        .where(field1, isEqualTo: value1)
+        .where(field2, isEqualTo: value2)
+        .get();
+    return querySnapshot.docs.length;
+  }
 }

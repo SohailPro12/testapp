@@ -11,3 +11,14 @@ Future<void> showErrorDialog(BuildContext context, String text) {
     },
   );
 }
+
+Future<void> showSuccessDialog(BuildContext context, String text) {
+  return showGenericDialog<void>(
+    context: context,
+    title: 'Success!',
+    content: text,
+    optionsBuilder: () => {
+      'OK': null,
+    },
+  );
+}

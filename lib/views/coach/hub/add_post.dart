@@ -45,82 +45,84 @@ class _AddPostScreenState extends State<AddPostScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(
-                hintText: 'Enter description',
-              ),
-              maxLines: null,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _pickFile,
-              child: Text(
-                  'Add ${widget.postType == PostType.image ? "Image" : "Video"}'),
-            ),
-            if (_uploadedFileBytes != null &&
-                widget.postType == PostType.image) ...[
-              const SizedBox(height: 16),
-              Image.memory(_uploadedFileBytes!),
-            ],
-            if (_videoController != null &&
-                widget.postType == PostType.video) ...[
-              const SizedBox(height: 16),
-              AspectRatio(
-                aspectRatio: _videoController!.value.aspectRatio,
-                child: Stack(
-                  alignment: Alignment.bottomCenter,
-                  children: [
-                    VideoPlayer(_videoController!),
-                    VideoProgressIndicator(
-                      _videoController!,
-                      allowScrubbing:
-                          true, // Allow user to scrub through the video
-                      padding: const EdgeInsets.all(8),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: Icon(_videoController!.value.isPlaying
-                              ? Icons.pause
-                              : Icons.play_arrow),
-                          onPressed: () {
-                            setState(() {
-                              if (_videoController!.value.isPlaying) {
-                                _videoController!.pause();
-                              } else {
-                                _videoController!.play();
-                              }
-                            });
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.replay),
-                          onPressed: () {
-                            setState(() {
-                              _videoController!.seekTo(Duration.zero);
-                              _videoController!.play();
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
+        child: SingleChildScrollView(
+          // Wrap your Column with SingleChildScrollView
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(
+                  hintText: 'Enter description',
                 ),
+                maxLines: null,
               ),
-            ],
-            if (_uploadedFileBytes != null) ...[
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: _uploadFile,
-                child: const Text('Upload Post'),
+                onPressed: _pickFile,
+                child: Text(
+                    'Add ${widget.postType == PostType.image ? "Image" : "Video"}'),
               ),
+              if (_uploadedFileBytes != null &&
+                  widget.postType == PostType.image) ...[
+                const SizedBox(height: 16),
+                Image.memory(_uploadedFileBytes!),
+              ],
+              if (_videoController != null &&
+                  widget.postType == PostType.video) ...[
+                const SizedBox(height: 16),
+                AspectRatio(
+                  aspectRatio: _videoController!.value.aspectRatio,
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      VideoPlayer(_videoController!),
+                      VideoProgressIndicator(
+                        _videoController!,
+                        allowScrubbing: true,
+                        padding: const EdgeInsets.all(8),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            icon: Icon(_videoController!.value.isPlaying
+                                ? Icons.pause
+                                : Icons.play_arrow),
+                            onPressed: () {
+                              setState(() {
+                                if (_videoController!.value.isPlaying) {
+                                  _videoController!.pause();
+                                } else {
+                                  _videoController!.play();
+                                }
+                              });
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.replay),
+                            onPressed: () {
+                              setState(() {
+                                _videoController!.seekTo(Duration.zero);
+                                _videoController!.play();
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              if (_uploadedFileBytes != null) ...[
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _uploadFile,
+                  child: const Text('Upload Post'),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

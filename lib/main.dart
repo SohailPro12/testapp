@@ -1,9 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-//import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:testapp/constants/routes.dart';
 import 'package:testapp/firebase_options.dart';
+import 'package:testapp/intro_screen.dart';
 import 'package:testapp/services/auth/auth_service.dart';
 import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/views/additionalinfo_view.dart';
@@ -17,10 +17,8 @@ import 'package:testapp/views/register_view.dart';
 import 'package:testapp/views/verfy_email_view.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding
-      .ensureInitialized(); // ensure that the button is initialized
-  /* await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler); */
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
     MaterialApp(
         title: 'Flutter Demo',
@@ -47,44 +45,64 @@ Future<void> main() async {
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
+  Future<bool> _checkIfFirstRun() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isFirstRun = true;
+    if (isFirstRun) {
+      prefs.setBool('isFirstRun', false);
+    }
+    return isFirstRun;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: AuthService.firebase().initialize(),
+      future: _checkIfFirstRun(),
       builder: (context, snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.done:
-            final user = AuthService.firebase().currentUser;
-            final FireStoreService fireStoreService = FireStoreService();
-            if (user != null) {
-              if (user.isEmailVerified) {
-                return FutureBuilder<Map<String, dynamic>>(
-                    future: fireStoreService.getUserData(user.email),
-                    builder: (context, userDataSnapshot) {
-                      try {
-                        if (userDataSnapshot.connectionState ==
-                            ConnectionState.done) {
-                          final userType =
-                              userDataSnapshot.data?['type'] as String?;
-                          if (userType == 'coach') {
-                            return CoachHomeView();
-                          } else if (userType == 'normal') {
-                            return UserHomeView();
-                          }
-                        }
-                      } catch (_) {
-                        throw Exception("unknown user");
-                      }
-                      return const CircularProgressIndicator();
-                    });
-              } else {
-                return const VerifyEmailview();
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.data == true) {
+          return IntroScreen();
+        } else {
+          return FutureBuilder(
+            future: AuthService.firebase().initialize(),
+            builder: (context, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.done:
+                  final user = AuthService.firebase().currentUser;
+                  final FireStoreService fireStoreService = FireStoreService();
+                  if (user != null) {
+                    if (user.isEmailVerified) {
+                      return FutureBuilder<Map<String, dynamic>>(
+                          future: fireStoreService.getUserData(user.email),
+                          builder: (context, userDataSnapshot) {
+                            try {
+                              if (userDataSnapshot.connectionState ==
+                                  ConnectionState.done) {
+                                final userType =
+                                    userDataSnapshot.data?['type'] as String?;
+                                if (userType == 'coach') {
+                                  return CoachHomeView();
+                                } else if (userType == 'normal') {
+                                  return UserHomeView();
+                                }
+                              }
+                            } catch (_) {
+                              throw Exception("unknown user");
+                            }
+                            return const CircularProgressIndicator();
+                          });
+                    } else {
+                      return const VerifyEmailview();
+                    }
+                  } else {
+                    return const LoginView();
+                  }
+                default:
+                  return const CircularProgressIndicator();
               }
-            } else {
-              return const LoginView();
-            }
-          default:
-            return const CircularProgressIndicator();
+            },
+          );
         }
       },
     );

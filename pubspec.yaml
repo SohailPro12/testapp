@@ -62,8 +62,14 @@ dependencies:
   image_gallery_saver: "^2.0.3"
   firebase_messaging: ^14.9.3
   http: ^1.2.1
+<<<<<<< HEAD
   percent_indicator: ^4.2.3
   smooth_page_indicator: ^1.1.0
+=======
+  flutter_launcher_icons: ^0.13.1
+  liquid_swipe: ^3.1.0
+  shared_preferences: ^2.2.3
+>>>>>>> 1a0423fff12aec526d27d7f5e3741507929c0d3b
 dev_dependencies:
   flutter_test:
     sdk: flutter

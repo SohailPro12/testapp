@@ -67,6 +67,7 @@ class _RequiredUsernameProfileViewState
       w = weight;
       h = height;
     });
+    // ignore: avoid_print
     print(w + h);
   }
 
@@ -118,7 +119,7 @@ class _RequiredUsernameProfileViewState
             length: tabs.length,
             child: Scaffold(
               appBar: AppBar(
-                backgroundColor: const Color.fromARGB(255, 200, 202, 70),
+                backgroundColor: const Color.fromARGB(255, 243, 72, 33),
                 titleTextStyle: const TextStyle(
                   color: Colors.white,
                 ),
@@ -232,6 +233,7 @@ class _RequiredUsernameProfileViewState
     );
   }
 
+  // ignore: unused_field
   Uint8List? _image;
 
   void selectImage() async {

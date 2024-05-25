@@ -66,6 +66,7 @@ class UserHomeView extends StatelessWidget {
               } else {
                 final String? profileImageUrl = imageSnapshot.data;
                 return Scaffold(
+<<<<<<< HEAD
                     appBar: AppBar(
                       title: const Text('Home'),
                       backgroundColor: const Color.fromARGB(255, 222, 243, 33),
@@ -75,6 +76,91 @@ class UserHomeView extends StatelessWidget {
                           backgroundImage: profileImageUrl != null
                               ? NetworkImage(profileImageUrl) as ImageProvider
                               : const AssetImage('assets/images/nopp.jpeg'),
+=======
+                  appBar: AppBar(
+                    title: const Text('Home'),
+                    backgroundColor: const Color.fromARGB(255, 243, 72, 33),
+                    actions: [
+                      CircleAvatar(
+                        // Assuming you have a user profile picture
+                        backgroundImage: profileImageUrl != null
+                            ? NetworkImage(profileImageUrl) as ImageProvider
+                            : const AssetImage('assets/images/nopp.jpeg'),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ConversationListPage(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.message), // Message icon
+                      ),
+                      PopupMenuButton<MenuAction>(
+                        onSelected: (value) async {
+                          switch (value) {
+                            case MenuAction.logout:
+                              final shouldLogout =
+                                  await showLogOutDialog(context);
+                              if (shouldLogout) {
+                                AuthService.firebase().logOut();
+                                // ignore: use_build_context_synchronously
+                                Navigator.of(context).pushNamedAndRemoveUntil(
+                                  loginRoute,
+                                  (_) => false,
+                                );
+                              }
+                              break;
+                            case MenuAction.deleteAccount:
+                              final shouldDeleteAccount =
+                                  await showDeleteAccountDialog(context);
+                              if (shouldDeleteAccount) {
+                                await _fireStoreService.deleteUser(username);
+                                // ignore: use_build_context_synchronously
+                                Navigator.of(context).pushNamedAndRemoveUntil(
+                                  loginRoute,
+                                  (_) => false,
+                                );
+                              }
+                              break;
+                          }
+                        },
+                        itemBuilder: (context) {
+                          return const [
+                            PopupMenuItem<MenuAction>(
+                              value: MenuAction.logout,
+                              child: Text('Log out'),
+                            ),
+                            PopupMenuItem<MenuAction>(
+                              value: MenuAction.deleteAccount,
+                              child: Text('Delete Account!'),
+                            ),
+                          ];
+                        },
+                      ),
+                    ],
+                  ),
+                  body: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Text(
+                            'Welcome $fullName!',
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 175, 150,
+                                  76), // Change the color to green for enthusiasm
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+>>>>>>> 1a0423fff12aec526d27d7f5e3741507929c0d3b
                         ),
                         IconButton(
                           onPressed: () {
@@ -87,6 +173,7 @@ class UserHomeView extends StatelessWidget {
                           },
                           icon: Icon(Icons.message), // Message icon
                         ),
+<<<<<<< HEAD
                         PopupMenuButton<MenuAction>(
                           onSelected: (value) async {
                             switch (value) {
@@ -114,6 +201,56 @@ class UserHomeView extends StatelessWidget {
                               ),
                             ];
                           },
+=======
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              //Navigator.pushNrgteamed(context, '/coach/ma routine');
+                            },
+                            icon: const Icon(Icons.message),
+                            label: const Text('créer ma routine'),
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              // Implement navigation to routine pre
+                            },
+                            icon: const Icon(Icons.hub),
+                            label: const Text('routine prédéfinie'),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const CoachesListView(),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.hub),
+                            label: const Text('coach'),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const FitMeAIView(),
+                                  ));
+                            },
+                            icon: const Icon(Icons.fitness_center),
+                            label: const Text('Explore FitMe AI'),
+                          ),
+>>>>>>> 1a0423fff12aec526d27d7f5e3741507929c0d3b
                         ),
                       ],
                     ),

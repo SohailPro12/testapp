@@ -14,7 +14,7 @@ class CoachaAdditionalInfo extends StatefulWidget {
 
 class _CoachaAdditionalInfoState extends State<CoachaAdditionalInfo> {
   String _experience = '';
-  String _selectedDomain = 'Football';
+  String _selectedDomain = 'Yoga';
   String _selectedAvailability = 'Full Time';
   String _website = ''; // Added website field
   String _bio = ''; // Added bio field
@@ -68,8 +68,28 @@ class _CoachaAdditionalInfoState extends State<CoachaAdditionalInfo> {
                     _selectedDomain = newValue!;
                   });
                 },
-                items: ['Football', 'Basketball', 'Tennis', 'Swimming']
-                    .map<DropdownMenuItem<String>>((String domain) {
+                items: [
+                  'Calisthenics',
+                  'Body Building',
+                  'CrossFit',
+                  'Weightlifting',
+                  'Powerlifting',
+                  'Yoga',
+                  'Pilates',
+                  'Aerobics',
+                  'Zumba',
+                  'Cycling',
+                  'Running',
+                  'Hiking',
+                  'Boxing',
+                  'Martial Arts',
+                  'Kickboxing',
+                  'Gymnastics',
+                  'Parkour',
+                  'Rock Climbing',
+                  'Surfing',
+                  'Skateboarding',
+                ].map<DropdownMenuItem<String>>((String domain) {
                   return DropdownMenuItem<String>(
                     value: domain,
                     child: Text(domain),

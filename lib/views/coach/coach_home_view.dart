@@ -93,7 +93,7 @@ class CoachHomeView extends StatelessWidget {
                 return Scaffold(
                   appBar: AppBar(
                     title: const Text('Home'),
-                    backgroundColor: const Color.fromARGB(255, 222, 243, 33),
+                    backgroundColor: const Color.fromARGB(255, 243, 72, 33),
                     actions: [
                       CircleAvatar(
                         // Assuming you have a user profile picture
