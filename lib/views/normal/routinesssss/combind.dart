@@ -79,9 +79,10 @@ class _CombinedPageState extends State<CombinedPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Combined Page'),
+        title: Text('Fitness Tracker'),
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -94,9 +95,11 @@ class _CombinedPageState extends State<CombinedPage> {
                 hintText: _selectedDate == null
                     ? 'Tap to select date'
                     : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
+                border: OutlineInputBorder(),
               ),
               readOnly: true,
             ),
+            SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 setState(() {
@@ -108,17 +111,23 @@ class _CombinedPageState extends State<CombinedPage> {
               },
               child: Text('Confirm Date'),
             ),
+            SizedBox(height: 16),
             Visibility(
               visible: _showCalorieConsumption,
               child: Column(
                 children: [
                   Text(
-                      'Calories consumed for the ${_selectedDate != null ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}' : 'specific day'}: $_dailyCalories'),
+                    'Calories consumed for the ${_selectedDate != null ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}' : 'specific day'}: $_dailyCalories',
+                    style: TextStyle(fontSize: 16),
+                  ),
                   Text(
-                      'Calories consumed for the ${_selectedDate != null ? '${DateFormat('MMMM yyyy').format(_selectedDate!)}' : 'specific month'}: $_monthlyCalories'),
+                    'Calories consumed for the ${_selectedDate != null ? '${DateFormat('MMMM yyyy').format(_selectedDate!)}' : 'specific month'}: $_monthlyCalories',
+                    style: TextStyle(fontSize: 16),
+                  ),
                 ],
               ),
             ),
+            SizedBox(height: 16),
             AnimatedOpacity(
               opacity: _showButtons ? 1.0 : 0.0,
               duration: Duration(milliseconds: 500),
@@ -140,6 +149,7 @@ class _CombinedPageState extends State<CombinedPage> {
                         : null,
                     child: Text('Workout Routine'),
                   ),
+                  SizedBox(height: 8),
                   ElevatedButton(
                     onPressed: _username.isNotEmpty && _selectedDate != null
                         ? () {
@@ -159,6 +169,7 @@ class _CombinedPageState extends State<CombinedPage> {
                         : null,
                     child: Text('Diet Routine'),
                   ),
+                  SizedBox(height: 8),
                   ElevatedButton(
                     onPressed: _username.isNotEmpty && _selectedDate != null
                         ? () {
