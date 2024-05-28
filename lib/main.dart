@@ -21,24 +21,24 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
     MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: const HomePage(),
-        routes: {
-          loginRoute: (context) => const LoginView(),
-          registerRoute: (context) => const RegisterView(),
-          verifyemailRoute: (context) => const VerifyEmailview(),
-          additionalInfoRoute: (context) => const AdditionalInfo(),
-          coachaAdditionalInfoRoute: (context) => const CoachaAdditionalInfo(
-                fullName: '',
-              ),
-          iAmANormalUserRoute: (context) => UserHomeView(),
-          coachProfileViewRoute: (context) => const CoachProfileView(),
-          iAmACoachRoute: (context) => CoachHomeView(),
-          userProfileViewRoute: (context) => const UserProfileView(),
-        }),
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const HomePage(),
+      routes: {
+        loginRoute: (context) => const LoginView(),
+        registerRoute: (context) => const RegisterView(),
+        verifyemailRoute: (context) => const VerifyEmailview(),
+        additionalInfoRoute: (context) => const AdditionalInfo(),
+        coachaAdditionalInfoRoute: (context) =>
+            const CoachaAdditionalInfo(fullName: ''),
+        iAmANormalUserRoute: (context) => UserHomeView(),
+        coachProfileViewRoute: (context) => const CoachProfileView(),
+        iAmACoachRoute: (context) => CoachHomeView(),
+        userProfileViewRoute: (context) => const UserProfileView(),
+      },
+    ),
   );
 }
 
@@ -47,7 +47,7 @@ class HomePage extends StatelessWidget {
 
   Future<bool> _checkIfFirstRun() async {
     final prefs = await SharedPreferences.getInstance();
-    final isFirstRun = true;
+    final isFirstRun = prefs.getBool('isFirstRun') ?? true;
     if (isFirstRun) {
       prefs.setBool('isFirstRun', false);
     }
@@ -67,39 +67,37 @@ class HomePage extends StatelessWidget {
           return FutureBuilder(
             future: AuthService.firebase().initialize(),
             builder: (context, snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.done:
-                  final user = AuthService.firebase().currentUser;
-                  final FireStoreService fireStoreService = FireStoreService();
-                  if (user != null) {
-                    if (user.isEmailVerified) {
-                      return FutureBuilder<Map<String, dynamic>>(
-                          future: fireStoreService.getUserData(user.email),
-                          builder: (context, userDataSnapshot) {
-                            try {
-                              if (userDataSnapshot.connectionState ==
-                                  ConnectionState.done) {
-                                final userType =
-                                    userDataSnapshot.data?['type'] as String?;
-                                if (userType == 'coach') {
-                                  return CoachHomeView();
-                                } else if (userType == 'normal') {
-                                  return UserHomeView();
-                                }
-                              }
-                            } catch (_) {
-                              throw Exception("unknown user");
-                            }
-                            return const CircularProgressIndicator();
-                          });
-                    } else {
-                      return const VerifyEmailview();
-                    }
+              if (snapshot.connectionState == ConnectionState.done) {
+                final user = AuthService.firebase().currentUser;
+                if (user != null) {
+                  if (user.isEmailVerified) {
+                    return FutureBuilder<Map<String, dynamic>>(
+                      future: FireStoreService().getUserData(user.email),
+                      builder: (context, userDataSnapshot) {
+                        if (userDataSnapshot.connectionState ==
+                            ConnectionState.done) {
+                          final userType =
+                              userDataSnapshot.data?['type'] as String?;
+                          if (userType == 'coach') {
+                            return CoachHomeView();
+                          } else if (userType == 'normal') {
+                            return UserHomeView();
+                          } else {
+                            return const LoginView();
+                          }
+                        } else {
+                          return const CircularProgressIndicator();
+                        }
+                      },
+                    );
                   } else {
-                    return const LoginView();
+                    return const VerifyEmailview();
                   }
-                default:
-                  return const CircularProgressIndicator();
+                } else {
+                  return const LoginView();
+                }
+              } else {
+                return const CircularProgressIndicator();
               }
             },
           );

@@ -6,8 +6,8 @@ import 'package:testapp/services/chat/fitme_ai_view.dart';
 import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/services/crud2/storage.dart';
 import 'package:testapp/views/conversation_view.dart';
-
-import 'package:testapp/views/normal/combind.dart';
+import 'package:testapp/views/normal/routinesssss/combind.dart';
+import 'package:testapp/views/normal/profile/user_profile_view.dart';
 
 class UserHomeView extends StatelessWidget {
   UserHomeView({super.key});
@@ -38,6 +38,32 @@ class UserHomeView extends StatelessWidget {
     ).then((value) => value ?? false);
   }
 
+  Future<bool> showDeleteAccountDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete Account'),
+          content: const Text('Are you sure you want to delete your account?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('Delete Account'),
+            ),
+          ],
+        );
+      },
+    ).then((value) => value ?? false);
+  }
+
   final FireStoreService _fireStoreService = FireStoreService();
   final StorageService _storageService = StorageService();
 
@@ -50,53 +76,34 @@ class UserHomeView extends StatelessWidget {
       ]),
       builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator(); // Show a loading indicator while waiting for the future to complete
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
         } else if (snapshot.hasError) {
-          return Text(
-              'Error: ${snapshot.error}'); // Show an error message if the future completes with an error
+          return Center(
+            child: Text('Error: ${snapshot.error}'),
+          );
         } else {
           final String fullName = snapshot.data![0] as String;
           final String username = snapshot.data![1] as String;
           return FutureBuilder<String>(
-            // Nested FutureBuilder for fetching profile image URL
             future: _storageService.getUrlfield(username, 'url'),
             builder: (context, imageSnapshot) {
               if (imageSnapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator(); // Show a loading indicator while waiting for the future to complete
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
               } else {
                 final String? profileImageUrl = imageSnapshot.data;
                 return Scaffold(
-<<<<<<< HEAD
-                    appBar: AppBar(
-                      title: const Text('Home'),
-                      backgroundColor: const Color.fromARGB(255, 222, 243, 33),
-                      actions: [
-                        CircleAvatar(
-                          // Assuming you have a user profile picture
-                          backgroundImage: profileImageUrl != null
-                              ? NetworkImage(profileImageUrl) as ImageProvider
-                              : const AssetImage('assets/images/nopp.jpeg'),
-=======
                   appBar: AppBar(
                     title: const Text('Home'),
                     backgroundColor: const Color.fromARGB(255, 243, 72, 33),
                     actions: [
                       CircleAvatar(
-                        // Assuming you have a user profile picture
                         backgroundImage: profileImageUrl != null
                             ? NetworkImage(profileImageUrl) as ImageProvider
                             : const AssetImage('assets/images/nopp.jpeg'),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ConversationListPage(),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.message), // Message icon
                       ),
                       PopupMenuButton<MenuAction>(
                         onSelected: (value) async {
@@ -155,86 +162,9 @@ class UserHomeView extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 175, 150,
-                                  76), // Change the color to green for enthusiasm
+                              color: Color.fromARGB(255, 175, 150, 76),
                             ),
                             textAlign: TextAlign.center,
-                          ),
->>>>>>> 1a0423fff12aec526d27d7f5e3741507929c0d3b
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ConversationListPage(),
-                              ),
-                            );
-                          },
-                          icon: Icon(Icons.message), // Message icon
-                        ),
-<<<<<<< HEAD
-                        PopupMenuButton<MenuAction>(
-                          onSelected: (value) async {
-                            switch (value) {
-                              case MenuAction.logout:
-                                final shouldLogout =
-                                    await showLogOutDialog(context);
-                                if (shouldLogout) {
-                                  AuthService.firebase().logOut();
-                                  // ignore: use_build_context_synchronously
-                                  Navigator.of(context).pushNamedAndRemoveUntil(
-                                    loginRoute,
-                                    (_) => false,
-                                  );
-                                }
-                                break;
-                              case MenuAction.deleteAccount:
-                              // TODO: Handle this case.
-                            }
-                          },
-                          itemBuilder: (context) {
-                            return const [
-                              PopupMenuItem<MenuAction>(
-                                value: MenuAction.logout,
-                                child: Text('Log out'),
-                              ),
-                            ];
-                          },
-=======
-                        const SizedBox(height: 20),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              //Navigator.pushNrgteamed(context, '/coach/ma routine');
-                            },
-                            icon: const Icon(Icons.message),
-                            label: const Text('créer ma routine'),
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              // Implement navigation to routine pre
-                            },
-                            icon: const Icon(Icons.hub),
-                            label: const Text('routine prédéfinie'),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => const CoachesListView(),
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.hub),
-                            label: const Text('coach'),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -242,98 +172,65 @@ class UserHomeView extends StatelessWidget {
                           child: ElevatedButton.icon(
                             onPressed: () {
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const FitMeAIView(),
-                                  ));
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const UserProfileView(),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.person),
+                            label: const Text('My profile'),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CombinedPage(),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.create),
+                            label: const Text('Create My Routine'),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ConversationListPage(),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.message),
+                            label: const Text('Check Messages'),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const FitMeAIView(),
+                                ),
+                              );
                             },
                             icon: const Icon(Icons.fitness_center),
                             label: const Text('Explore FitMe AI'),
                           ),
->>>>>>> 1a0423fff12aec526d27d7f5e3741507929c0d3b
                         ),
                       ],
                     ),
-                    body: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            child: Text(
-                              'Welcome $fullName!',
-                              style: const TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 175, 150,
-                                    76), // Change the color to green for enthusiasm
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          // Use individual Expanded widgets with icons
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                Navigator.of(context)
-                                    .pushNamed(userProfileViewRoute);
-                              },
-                              icon: const Icon(Icons.person),
-                              label: const Text('View Profile'),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => CombinedPage(),
-                                  ),
-                                );
-                              },
-                              icon: const Icon(Icons.message),
-                              label: const Text('créer ma routine'),
-                            ),
-                          ),
-
-                          const SizedBox(height: 20),
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        ConversationListPage(),
-                                  ),
-                                );
-                              },
-                              icon: const Icon(Icons.hub),
-                              label: const Text('coach'),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => FitMeAIView(),
-                                    ));
-                              },
-                              icon: const Icon(Icons.fitness_center),
-                              label: const Text('Explore FitMe AI'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ));
+                  ),
+                );
               }
             },
           );
