@@ -92,7 +92,19 @@ class CoachHomeView extends StatelessWidget {
                 final String? profileImageUrl = imageSnapshot.data;
                 return Scaffold(
                   appBar: AppBar(
-                    title: const Text('Home'),
+                    title: Row(
+                      children: [
+                        ClipOval(
+                          child: Image.asset(
+                            'assets/icon/icon.png',
+                            height: 30,
+                            width: 30,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        const Text('Home'),
+                      ],
+                    ),
                     backgroundColor: const Color.fromARGB(255, 243, 72, 33),
                     actions: [
                       CircleAvatar(
