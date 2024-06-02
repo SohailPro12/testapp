@@ -6,6 +6,7 @@ import 'package:testapp/services/chat/fitme_ai_view.dart';
 import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/services/crud2/storage.dart';
 import 'package:testapp/views/conversation_view.dart';
+import 'package:testapp/views/normal/coaches_list.dart';
 import 'package:testapp/views/normal/routinesssss/combind.dart';
 import 'package:testapp/views/normal/profile/user_profile_view.dart';
 
@@ -222,6 +223,21 @@ class UserHomeView extends StatelessWidget {
                             },
                             icon: const Icon(Icons.message),
                             label: const Text('Check Messages'),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CoachesListView(),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.message),
+                            label: const Text('Coaches'),
                           ),
                         ),
                         const SizedBox(height: 20),

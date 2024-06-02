@@ -4,6 +4,7 @@ import 'package:testapp/services/auth/auth_service.dart';
 import 'package:testapp/constants/routes.dart';
 import 'package:testapp/services/crud2/firestore.dart';
 import 'package:testapp/services/crud2/storage.dart';
+import 'package:testapp/views/coach/client_search/users_list.dart';
 import 'package:testapp/views/coach/hub/coach_hub.dart';
 import 'package:testapp/views/conversation_view.dart';
 import 'package:testapp/services/chat/fitme_ai_view.dart';
@@ -217,6 +218,21 @@ class CoachHomeView extends StatelessWidget {
                             },
                             icon: const Icon(Icons.hub),
                             label: const Text('Your hub'),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const UsersListView(),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.attach_money_rounded),
+                            label: const Text('Search for clients'),
                           ),
                         ),
                         const SizedBox(height: 20),

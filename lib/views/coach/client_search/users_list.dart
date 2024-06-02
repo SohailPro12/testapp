@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:testapp/views/coach/usersearchprofile/user_profile_view.dart';
 import 'package:testapp/views/normal/hub_search/coach_hub.dart';
 
-class CoachesListView extends StatelessWidget {
-  const CoachesListView({super.key});
+class UsersListView extends StatelessWidget {
+  const UsersListView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +50,7 @@ class _CoachListState extends State<CoachList> {
           child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('users')
-                .where('type', isEqualTo: 'coach')
+                .where('type', isEqualTo: 'normal')
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
@@ -112,15 +113,13 @@ class _CoachListState extends State<CoachList> {
                         ),
                         title: Text(coachData['full_name'] ?? 'Coach'),
                         subtitle: Text(
-                            "domain :${coachData['Domain'] ?? 'No domain'}"),
+                            "Favorite Sport :${coachData['favorite_sport'] ?? 'No sport'}"),
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  RequiredUserNameCoachHubView(
-                                username: coachData['username'],
-                              ),
-                            ),
+                                builder: (context) =>
+                                    RequiredUsernameProfileView(
+                                        username: coachData['username'])),
                           );
                         },
                       );

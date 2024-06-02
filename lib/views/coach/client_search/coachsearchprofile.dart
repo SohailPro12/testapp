@@ -1,84 +1,38 @@
-import 'dart:typed_data';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:share_plus/share_plus.dart'; // Import the share_plus package
-import 'package:testapp/services/crud/crud_exceptions.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:testapp/services/crud2/firestore.dart';
-import 'package:testapp/views/coach/profile/utils.dart';
-import 'package:testapp/views/coach/usersearchprofile/about.dart';
-import 'package:testapp/views/coach/usersearchprofile/contact.dart';
-import 'package:testapp/views/normal/Messages/send_message_view.dart'; // Import the messaging view
+import 'package:testapp/views/normal/coachsearchprofile/about.dart';
+import 'package:testapp/views/normal/coachsearchprofile/contact.dart';
 
-class RequiredUsernameProfileView extends StatefulWidget {
-  final String username; // Add username as a parameter
+class RequiredCoachnameProfileView extends StatefulWidget {
+  final String username;
 
-  // ignore: use_super_parameters
-  const RequiredUsernameProfileView({Key? key, required this.username})
-      : super(key: key);
+  const RequiredCoachnameProfileView({super.key, required this.username});
 
   @override
-  State<RequiredUsernameProfileView> createState() =>
-      _RequiredUsernameProfileViewState();
+  State<RequiredCoachnameProfileView> createState() =>
+      _RequiredCoachnameProfileViewState();
 }
 
-class _RequiredUsernameProfileViewState
-    extends State<RequiredUsernameProfileView> {
-  List<Tab> tabs = [
-    const Tab(
-      text: "About",
-      icon: Icon(Icons.account_box),
-    ),
-    const Tab(
-      text: "Contact",
-      icon: Icon(Icons.contact_page),
-    ),
-  ];
+final FireStoreService _fireStoreService = FireStoreService();
+
+class _RequiredCoachnameProfileViewState
+    extends State<RequiredCoachnameProfileView> {
+  late String _username;
+  String? _profileImageUrl;
 
   @override
   void initState() {
     super.initState();
+    _username = widget.username;
     loadProfileImage();
-    _loadUserMetrics();
-    _fetchUsername();
   }
-
-  Row stats() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        statsColumn("Weight", w),
-        statsColumn("Height", h),
-      ],
-    );
-  }
-
-  var w = "";
-  var h = "";
-
-  void _loadUserMetrics() async {
-    final fireStoreService = FireStoreService();
-
-    final weight = await fireStoreService.getUserFieldByUsername(
-        'weight', widget.username);
-    final height = await fireStoreService.getUserFieldByUsername(
-        'height', widget.username);
-    setState(() {
-      // Initialize the controllers with the retrieved values
-      w = weight;
-      h = height;
-    });
-    // ignore: avoid_print
-    print(w + h);
-  }
-
-  String? _profileImageUrl;
 
   void loadProfileImage() async {
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('userProfile')
-        .where('username', isEqualTo: widget.username) // Use widget.username
+        .where('username', isEqualTo: _username)
         .where('datatype', isEqualTo: 'profilePicture')
         .get();
 
@@ -89,52 +43,23 @@ class _RequiredUsernameProfileViewState
     }
   }
 
-  Future<String> getUserFieldByUsername(
-      String username, String fieldName) async {
-    final querySnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .where('username', isEqualTo: username)
-        .get();
-    if (querySnapshot.docs.isNotEmpty) {
-      final userData = querySnapshot.docs.first.data();
-      final fieldValue = (userData)[fieldName]?.toString() ?? '';
-      return fieldValue;
-    } else {
-      throw UserNotFoundException();
-    }
-  }
-
-  final FireStoreService _fireStoreService = FireStoreService();
-  String _username = "";
-  void _fetchUsername() async {
-    try {
-      String username = await _fireStoreService.getUserField('username');
-      setState(() {
-        _username = username;
-      });
-    } catch (e) {
-      print('Error fetching username: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<String>(
-      future: getUserFieldByUsername(widget.username, 'username'),
+      future: Future.value(_username),
       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
-          String username = snapshot.data ?? '';
-          String profileUrl = 'https://fitme.com/profile/$username';
+          String profileUrl = 'https://fitme.com/profile/$_username';
 
           return DefaultTabController(
-            length: tabs.length,
+            length: 2,
             child: Scaffold(
               appBar: AppBar(
-                backgroundColor: const Color.fromARGB(255, 243, 72, 33),
+                backgroundColor: const Color.fromARGB(255, 200, 202, 70),
                 titleTextStyle: const TextStyle(
                   color: Colors.white,
                 ),
@@ -152,8 +77,11 @@ class _RequiredUsernameProfileViewState
                     stats(),
                   ],
                 ),
-                bottom: TabBar(
-                  tabs: tabs,
+                bottom: const TabBar(
+                  tabs: [
+                    Tab(text: "About", icon: Icon(Icons.account_box)),
+                    Tab(text: "Contact", icon: Icon(Icons.contact_page)),
+                  ],
                   indicatorColor: Colors.white,
                   indicatorSize: TabBarIndicatorSize.tab,
                 ),
@@ -164,28 +92,12 @@ class _RequiredUsernameProfileViewState
                     },
                     icon: const Icon(Icons.share),
                   ),
-                  IconButton(
-                    onPressed: () {
-                      // Navigate to the conversation view with the selected user
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => ChatPage(
-                            receiverUsername: widget.username,
-                            currentUsername: _username,
-                          ),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.message),
-                  ),
                 ],
               ),
               body: TabBarView(
                 children: [
-                  AboutSection(username: username),
-                  ContactSection(
-                    username: username,
-                  ),
+                  AboutSection(username: _username),
+                  ContactSection(username: _username),
                 ],
               ),
             ),
@@ -199,7 +111,7 @@ class _RequiredUsernameProfileViewState
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: FutureBuilder<String>(
-        future: getUserFieldByUsername(widget.username, 'favorite_sport'),
+        future: _fireStoreService.getUserFieldByUsername('Domain', _username),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
@@ -223,7 +135,8 @@ class _RequiredUsernameProfileViewState
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: FutureBuilder<String>(
-        future: getUserFieldByUsername(widget.username, 'full_name'),
+        future:
+            _fireStoreService.getUserFieldByUsername('full_name', _username),
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
@@ -240,6 +153,17 @@ class _RequiredUsernameProfileViewState
           }
         },
       ),
+    );
+  }
+
+  Row stats() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        statsColumn("Photos", "160"),
+        statsColumn("Followers", "1657"),
+        statsColumn("Customer", "9"),
+      ],
     );
   }
 
@@ -260,17 +184,6 @@ class _RequiredUsernameProfileViewState
         ),
       ],
     );
-  }
-
-  // ignore: unused_field
-  Uint8List? _image;
-
-  void selectImage() async {
-    final Uint8List? img = await pickImage(ImageSource.gallery);
-
-    setState(() {
-      _image = img;
-    });
   }
 
   Container profilePhotos() {
