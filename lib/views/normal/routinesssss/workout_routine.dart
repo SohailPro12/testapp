@@ -81,6 +81,13 @@ class _WorkoutRoutinePageState extends State<WorkoutRoutinePage> {
     }
   }
 
+  void _deleteExercise(int index) async {
+    setState(() {
+      _selectedExercises.removeAt(index);
+    });
+    _saveExercises();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,6 +113,10 @@ class _WorkoutRoutinePageState extends State<WorkoutRoutinePage> {
                 return ListTile(
                   title: Text(exercise['name'] ?? 'No Name'),
                   subtitle: Text(exercise['description'] ?? 'No Description'),
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () => _deleteExercise(index),
+                  ),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -134,12 +145,22 @@ class PredefinedExercisesPage extends StatefulWidget {
 
 class _PredefinedExercisesPageState extends State<PredefinedExercisesPage> {
   List<Map<String, dynamic>> _predefinedExercises = [];
+  List<Map<String, dynamic>> _filteredExercises = [];
   List<Map<String, dynamic>> _selectedExercises = [];
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchPredefinedExercises();
+    _searchController.addListener(_filterExercises);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_filterExercises);
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchPredefinedExercises() async {
@@ -148,10 +169,21 @@ class _PredefinedExercisesPageState extends State<PredefinedExercisesPage> {
           await FirebaseFirestore.instance.collection('exercices').get();
       setState(() {
         _predefinedExercises = snapshot.docs.map((doc) => doc.data()).toList();
+        _filteredExercises = List.from(_predefinedExercises);
       });
     } catch (e) {
       print('Error fetching predefined exercises: $e');
     }
+  }
+
+  void _filterExercises() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredExercises = _predefinedExercises
+          .where((exercise) =>
+              (exercise['name'] ?? '').toLowerCase().contains(query))
+          .toList();
+    });
   }
 
   void _toggleExercise(Map<String, dynamic> exercise) {
@@ -174,26 +206,44 @@ class _PredefinedExercisesPageState extends State<PredefinedExercisesPage> {
       appBar: AppBar(
         title: Text('Select Predefined Exercises'),
       ),
-      body: _predefinedExercises.isEmpty
-          ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: _predefinedExercises.length,
-              itemBuilder: (context, index) {
-                final exercise = _predefinedExercises[index];
-                return ListTile(
-                  title: Text(exercise['name'] ?? 'No Name'),
-                  subtitle: Text(exercise['description'] ?? 'No Description'),
-                  trailing: IconButton(
-                    icon: Icon(
-                      _selectedExercises.contains(exercise)
-                          ? Icons.check_box
-                          : Icons.check_box_outline_blank,
-                    ),
-                    onPressed: () => _toggleExercise(exercise),
-                  ),
-                );
-              },
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                labelText: 'Search Exercises',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.search),
+              ),
             ),
+          ),
+          Expanded(
+            child: _filteredExercises.isEmpty
+                ? Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    itemCount: _filteredExercises.length,
+                    itemBuilder: (context, index) {
+                      final exercise = _filteredExercises[index];
+                      return ListTile(
+                        title: Text(exercise['name'] ?? 'No Name'),
+                        subtitle:
+                            Text(exercise['description'] ?? 'No Description'),
+                        trailing: IconButton(
+                          icon: Icon(
+                            _selectedExercises.contains(exercise)
+                                ? Icons.check_box
+                                : Icons.check_box_outline_blank,
+                          ),
+                          onPressed: () => _toggleExercise(exercise),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addExercises,
         child: Icon(Icons.check),
