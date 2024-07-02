@@ -90,6 +90,7 @@ class _FitMeAIViewState extends State<FitMeAIView> {
     return Scaffold(
       appBar: AppBar(
         title: Text('FitMeAI Chat'),
+        backgroundColor: Colors.blue,
       ),
       body: Container(
         decoration: BoxDecoration(

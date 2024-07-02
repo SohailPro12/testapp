@@ -38,7 +38,7 @@ class CoachHomeView extends StatelessWidget {
     ).then((value) => value ?? false);
   }
 
-  showDeleteAccountDialog(BuildContext context) {
+  Future<bool> showDeleteAccountDialog(BuildContext context) {
     return showDialog<bool>(
       context: context,
       builder: (context) {
@@ -76,19 +76,25 @@ class CoachHomeView extends StatelessWidget {
       ]),
       builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator(); // Show a loading indicator while waiting for the future to complete
+          return const Center(
+            child: CircularProgressIndicator(
+                color: Color.fromARGB(255, 139, 69, 19)),
+          );
         } else if (snapshot.hasError) {
-          return Text(
-              'Error: ${snapshot.error}'); // Show an error message if the future completes with an error
+          return Center(
+            child: Text('Error: ${snapshot.error}'),
+          );
         } else {
           final String fullName = snapshot.data![0] as String;
           final String username = snapshot.data![1] as String;
           return FutureBuilder<String>(
-            // Nested FutureBuilder for fetching profile image URL
             future: _storageService.getUrlfield(username, 'url'),
             builder: (context, imageSnapshot) {
               if (imageSnapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator(); // Show a loading indicator while waiting for the future to complete
+                return const Center(
+                  child: CircularProgressIndicator(
+                      color: Color.fromARGB(255, 139, 69, 19)),
+                );
               } else {
                 final String? profileImageUrl = imageSnapshot.data;
                 return Scaffold(
@@ -106,10 +112,20 @@ class CoachHomeView extends StatelessWidget {
                         const Text('Home'),
                       ],
                     ),
-                    backgroundColor: const Color.fromARGB(255, 243, 72, 33),
+                    flexibleSpace: Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Color.fromARGB(255, 165, 42, 42),
+                            Color.fromARGB(255, 210, 105, 30),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                    ),
                     actions: [
                       CircleAvatar(
-                        // Assuming you have a user profile picture
                         backgroundImage: profileImageUrl != null
                             ? NetworkImage(profileImageUrl) as ImageProvider
                             : const AssetImage('assets/images/nopp.jpeg'),
@@ -171,22 +187,40 @@ class CoachHomeView extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 175, 150,
-                                  76), // Change the color to green for enthusiasm
+                              color: Color.fromARGB(255, 139, 69, 19),
                             ),
                             textAlign: TextAlign.center,
                           ),
                         ),
                         const SizedBox(height: 20),
-                        // Use individual Expanded widgets with icons
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () {
                               Navigator.of(context)
                                   .pushNamed(coachProfileViewRoute);
                             },
-                            icon: const Icon(Icons.person),
-                            label: const Text('View Profile'),
+                            icon: const Icon(
+                              Icons.person,
+                              size: 45,
+                              color: Colors.white,
+                            ),
+                            label: const Text(
+                              'View Profile',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 165, 42, 42),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                              ),
+                              textStyle: const TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -200,11 +234,30 @@ class CoachHomeView extends StatelessWidget {
                                 ),
                               );
                             },
-                            icon: const Icon(Icons.message),
-                            label: const Text('Check Messages'),
+                            icon: const Icon(
+                              Icons.message,
+                              size: 45,
+                              color: Colors.white,
+                            ),
+                            label: const Text(
+                              'Check Messages',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 165, 42, 42),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                              ),
+                              textStyle: const TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
-
                         const SizedBox(height: 20),
                         Expanded(
                           child: ElevatedButton.icon(
@@ -216,8 +269,28 @@ class CoachHomeView extends StatelessWidget {
                                 ),
                               );
                             },
-                            icon: const Icon(Icons.hub),
-                            label: const Text('Your hub'),
+                            icon: const Icon(
+                              Icons.hub,
+                              size: 45,
+                              color: Colors.white,
+                            ),
+                            label: const Text(
+                              'Your Hub',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 165, 42, 42),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                              ),
+                              textStyle: const TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -231,8 +304,28 @@ class CoachHomeView extends StatelessWidget {
                                 ),
                               );
                             },
-                            icon: const Icon(Icons.attach_money_rounded),
-                            label: const Text('Search for clients'),
+                            icon: const Icon(
+                              Icons.search,
+                              size: 45,
+                              color: Colors.white,
+                            ),
+                            label: const Text(
+                              'Search for Clients',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 165, 42, 42),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                              ),
+                              textStyle: const TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -240,13 +333,34 @@ class CoachHomeView extends StatelessWidget {
                           child: ElevatedButton.icon(
                             onPressed: () {
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => FitMeAIView(),
-                                  ));
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => FitMeAIView(),
+                                ),
+                              );
                             },
-                            icon: const Icon(Icons.fitness_center),
-                            label: const Text('Explore FitMe AI'),
+                            icon: const Icon(
+                              Icons.fitness_center,
+                              size: 45,
+                              color: Colors.white,
+                            ),
+                            label: const Text(
+                              'Explore FitMe AI',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 165, 42, 42),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                              ),
+                              textStyle: const TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                       ],

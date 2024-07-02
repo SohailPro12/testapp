@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
@@ -94,39 +96,73 @@ class _WorkoutRoutinePageState extends State<WorkoutRoutinePage> {
       appBar: AppBar(
         title: Text(
             'Workout Routine for ${widget.selectedDate.toLocal().toString().split(' ')[0]}'),
+        backgroundColor: Colors.deepPurple,
       ),
       body: Column(
         children: [
-          ElevatedButton(
-            onPressed: _navigateToPredefinedExercises,
-            child: Text('Choose Predefined Exercises'),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: _navigateToPredefinedExercises,
+              child: Text('Choose Predefined Exercises'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.deepPurple,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
           ),
-          ElevatedButton(
-            onPressed: _navigateToAddCustomExercise,
-            child: Text('Add My Own Exercise'),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: ElevatedButton(
+              onPressed: _navigateToAddCustomExercise,
+              child: Text('Add My Own Exercise'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.deepPurple,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
           ),
           Expanded(
             child: ListView.builder(
               itemCount: _selectedExercises.length,
               itemBuilder: (context, index) {
                 final exercise = _selectedExercises[index];
-                return ListTile(
-                  title: Text(exercise['name'] ?? 'No Name'),
-                  subtitle: Text(exercise['description'] ?? 'No Description'),
-                  trailing: IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () => _deleteExercise(index),
+                return Card(
+                  margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ExerciseDetailPage(
-                          exercise: exercise,
+                  child: ListTile(
+                    title: Text(
+                      exercise['name'] ?? 'No Name',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.deepPurple),
+                    ),
+                    subtitle: Text(exercise['description'] ?? 'No Description'),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete, color: Colors.deepPurple),
+                      onPressed: () => _deleteExercise(index),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ExerciseDetailPage(
+                            exercise: exercise,
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 );
               },
             ),
@@ -205,6 +241,7 @@ class _PredefinedExercisesPageState extends State<PredefinedExercisesPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Select Predefined Exercises'),
+        backgroundColor: Colors.deepPurple,
       ),
       body: Column(
         children: [
@@ -216,6 +253,8 @@ class _PredefinedExercisesPageState extends State<PredefinedExercisesPage> {
                 labelText: 'Search Exercises',
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.purple[50],
               ),
             ),
           ),
@@ -226,17 +265,30 @@ class _PredefinedExercisesPageState extends State<PredefinedExercisesPage> {
                     itemCount: _filteredExercises.length,
                     itemBuilder: (context, index) {
                       final exercise = _filteredExercises[index];
-                      return ListTile(
-                        title: Text(exercise['name'] ?? 'No Name'),
-                        subtitle:
-                            Text(exercise['description'] ?? 'No Description'),
-                        trailing: IconButton(
-                          icon: Icon(
-                            _selectedExercises.contains(exercise)
-                                ? Icons.check_box
-                                : Icons.check_box_outline_blank,
+                      return Card(
+                        margin:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ListTile(
+                          title: Text(
+                            exercise['name'] ?? 'No Name',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.deepPurple),
                           ),
-                          onPressed: () => _toggleExercise(exercise),
+                          subtitle:
+                              Text(exercise['description'] ?? 'No Description'),
+                          trailing: IconButton(
+                            icon: Icon(
+                              _selectedExercises.contains(exercise)
+                                  ? Icons.check_box
+                                  : Icons.check_box_outline_blank,
+                              color: Colors.deepPurple,
+                            ),
+                            onPressed: () => _toggleExercise(exercise),
+                          ),
                         ),
                       );
                     },
@@ -312,6 +364,7 @@ class _AddCustomExercisePageState extends State<AddCustomExercisePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Add Custom Exercise'),
+        backgroundColor: Colors.deepPurple,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -349,6 +402,14 @@ class _AddCustomExercisePageState extends State<AddCustomExercisePage> {
               ElevatedButton(
                 onPressed: _saveCustomExercise,
                 child: Text('Save Exercise'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.deepPurple,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
               ),
             ],
           ),
@@ -408,6 +469,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.exercise['name'] ?? 'No Name'),
+        backgroundColor: Colors.deepPurple,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -432,12 +494,15 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
             SizedBox(height: 16),
             Text(
               widget.exercise['name'] ?? 'No Name',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple),
             ),
             SizedBox(height: 16),
             Text(
               widget.exercise['description'] ?? 'No Description',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 16, color: Colors.deepPurple),
             ),
           ],
         ),
@@ -457,6 +522,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                     ? Icons.pause
                     : Icons.play_arrow,
               ),
+              backgroundColor: Colors.deepPurple,
             ),
     );
   }

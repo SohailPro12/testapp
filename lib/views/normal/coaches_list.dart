@@ -10,6 +10,7 @@ class CoachesListView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Coaches'),
+        backgroundColor: Colors.red,
       ),
       body: const CoachList(),
     );
@@ -66,7 +67,7 @@ class _CoachListState extends State<CoachList> {
 
               final coaches = snapshot.data!.docs.where((doc) {
                 final coachData = doc.data() as Map<String, dynamic>;
-                final fullName = coachData['full_name']?.toLowerCase() ?? '';
+                final fullName = coachData['Domain']?.toLowerCase() ?? '';
                 return fullName.contains(searchQuery);
               }).toList();
 

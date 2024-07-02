@@ -78,7 +78,8 @@ class UserHomeView extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(
+                color: Color.fromARGB(255, 139, 69, 19)),
           );
         } else if (snapshot.hasError) {
           return Center(
@@ -92,7 +93,8 @@ class UserHomeView extends StatelessWidget {
             builder: (context, imageSnapshot) {
               if (imageSnapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(
+                      color: Color.fromARGB(255, 139, 69, 19)),
                 );
               } else {
                 final String? profileImageUrl = imageSnapshot.data;
@@ -111,7 +113,18 @@ class UserHomeView extends StatelessWidget {
                         const Text('Home'),
                       ],
                     ),
-                    backgroundColor: const Color.fromARGB(255, 243, 72, 33),
+                    flexibleSpace: Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Color.fromARGB(255, 165, 42, 42),
+                            Color.fromARGB(255, 210, 105, 30),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                    ),
                     actions: [
                       CircleAvatar(
                         backgroundImage: profileImageUrl != null
@@ -175,7 +188,7 @@ class UserHomeView extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 175, 150, 76),
+                              color: Color.fromARGB(255, 139, 69, 19),
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -191,8 +204,28 @@ class UserHomeView extends StatelessWidget {
                                 ),
                               );
                             },
-                            icon: const Icon(Icons.person),
-                            label: const Text('My profile'),
+                            icon: const Icon(
+                              Icons.person,
+                              size: 45,
+                              color: Colors.white,
+                            ),
+                            label: const Text(
+                              'My profile',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 165, 42, 42),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                              ),
+                              textStyle: const TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -206,8 +239,28 @@ class UserHomeView extends StatelessWidget {
                                 ),
                               );
                             },
-                            icon: const Icon(Icons.create),
-                            label: const Text('Create My Routine'),
+                            icon: const Icon(
+                              Icons.create,
+                              size: 45,
+                              color: Colors.white,
+                            ),
+                            label: const Text(
+                              'Create My Routine',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 165, 42, 42),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                              ),
+                              textStyle: const TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -221,8 +274,25 @@ class UserHomeView extends StatelessWidget {
                                 ),
                               );
                             },
-                            icon: const Icon(Icons.message),
-                            label: const Text('Check Messages'),
+                            icon: const Icon(Icons.message,
+                                size: 45, color: Colors.white),
+                            label: const Text(
+                              'Check Messages',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 165, 42, 42),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                              ),
+                              textStyle: const TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -236,8 +306,28 @@ class UserHomeView extends StatelessWidget {
                                 ),
                               );
                             },
-                            icon: const Icon(Icons.message),
-                            label: const Text('Coaches'),
+                            icon: const Icon(
+                              Icons.message,
+                              size: 45,
+                              color: Colors.white,
+                            ),
+                            label: const Text(
+                              'Coaches',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 165, 42, 42),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                              ),
+                              textStyle: const TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -251,8 +341,28 @@ class UserHomeView extends StatelessWidget {
                                 ),
                               );
                             },
-                            icon: const Icon(Icons.fitness_center),
-                            label: const Text('Explore FitMe AI'),
+                            icon: const Icon(
+                              Icons.fitness_center,
+                              size: 45,
+                              color: Colors.white,
+                            ),
+                            label: const Text(
+                              'Explore FitMe Ai',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 165, 42, 42),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                              ),
+                              textStyle: const TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                       ],

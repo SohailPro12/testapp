@@ -80,8 +80,9 @@ class _CombinedPageState extends State<CombinedPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Fitness Tracker'),
+        backgroundColor: Colors.teal,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -92,14 +93,21 @@ class _CombinedPageState extends State<CombinedPage> {
               },
               decoration: InputDecoration(
                 labelText: 'Select Date',
+                labelStyle: TextStyle(color: Colors.teal),
                 hintText: _selectedDate == null
                     ? 'Tap to select date'
                     : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.teal),
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
               ),
               readOnly: true,
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 setState(() {
@@ -110,30 +118,41 @@ class _CombinedPageState extends State<CombinedPage> {
                 });
               },
               child: Text('Confirm Date'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.teal,
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 20),
             Visibility(
               visible: _showCalorieConsumption,
               child: Column(
                 children: [
                   Text(
-                    'Calories consumed for the ${_selectedDate != null ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}' : 'specific day'}: $_dailyCalories',
-                    style: TextStyle(fontSize: 16),
+                    'Calories consumed on ${_selectedDate != null ? DateFormat('dd/MM/yyyy').format(_selectedDate!) : 'this day'}: $_dailyCalories',
+                    style: TextStyle(fontSize: 18, color: Colors.teal),
                   ),
+                  SizedBox(height: 10),
                   Text(
-                    'Calories consumed for the ${_selectedDate != null ? '${DateFormat('MMMM yyyy').format(_selectedDate!)}' : 'specific month'}: $_monthlyCalories',
-                    style: TextStyle(fontSize: 16),
+                    'Calories consumed in ${_selectedDate != null ? DateFormat('MMMM yyyy').format(_selectedDate!) : 'this month'}: $_monthlyCalories',
+                    style: TextStyle(fontSize: 18, color: Colors.teal),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 20),
             AnimatedOpacity(
               opacity: _showButtons ? 1.0 : 0.0,
               duration: Duration(milliseconds: 500),
               child: Column(
                 children: [
-                  ElevatedButton(
+                  _buildCustomButton(
+                    icon: Icons.fitness_center,
+                    label: 'Workout Routine',
                     onPressed: _username.isNotEmpty && _selectedDate != null
                         ? () {
                             Navigator.push(
@@ -147,10 +166,11 @@ class _CombinedPageState extends State<CombinedPage> {
                             );
                           }
                         : null,
-                    child: Text('Workout Routine'),
                   ),
                   SizedBox(height: 8),
-                  ElevatedButton(
+                  _buildCustomButton(
+                    icon: Icons.restaurant,
+                    label: 'Diet Routine',
                     onPressed: _username.isNotEmpty && _selectedDate != null
                         ? () {
                             Navigator.push(
@@ -167,10 +187,11 @@ class _CombinedPageState extends State<CombinedPage> {
                             });
                           }
                         : null,
-                    child: Text('Diet Routine'),
                   ),
                   SizedBox(height: 8),
-                  ElevatedButton(
+                  _buildCustomButton(
+                    icon: Icons.local_drink,
+                    label: 'Hydration',
                     onPressed: _username.isNotEmpty && _selectedDate != null
                         ? () {
                             Navigator.push(
@@ -184,12 +205,30 @@ class _CombinedPageState extends State<CombinedPage> {
                             );
                           }
                         : null,
-                    child: Text('Hydration'),
                   ),
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCustomButton(
+      {required IconData icon,
+      required String label,
+      VoidCallback? onPressed}) {
+    return ElevatedButton.icon(
+      icon: Icon(icon, color: Colors.white),
+      label: Text(label),
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.teal,
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
         ),
       ),
     );

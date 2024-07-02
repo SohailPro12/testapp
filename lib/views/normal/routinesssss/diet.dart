@@ -12,7 +12,8 @@ class DietRoutinePage extends StatefulWidget {
   _DietRoutinePageState createState() => _DietRoutinePageState();
 }
 
-class _DietRoutinePageState extends State<DietRoutinePage> {
+class _DietRoutinePageState extends State<DietRoutinePage>
+    with SingleTickerProviderStateMixin {
   final _mealNameController = TextEditingController();
   final _caloriesController = TextEditingController();
   final _carbsController = TextEditingController();
@@ -27,11 +28,31 @@ class _DietRoutinePageState extends State<DietRoutinePage> {
   num _dailyProtein = 0;
   num _monthlyCalories = 0;
 
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 2),
+    )..repeat(reverse: true);
+    _animation =
+        CurvedAnimation(parent: _animationController, curve: Curves.easeInOut);
     _fetchMeals();
     _fetchMonthlyCalories();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _mealNameController.dispose();
+    _caloriesController.dispose();
+    _carbsController.dispose();
+    _fatController.dispose();
+    _proteinController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchMeals() async {
@@ -251,6 +272,7 @@ class _DietRoutinePageState extends State<DietRoutinePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Diet Routine'),
+        backgroundColor: _getRandomColor(),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -262,8 +284,12 @@ class _DietRoutinePageState extends State<DietRoutinePage> {
                   children: [
                     TextFormField(
                       controller: _mealNameController,
-                      decoration: InputDecoration(labelText: 'Meal Name'),
+                      decoration: InputDecoration(
+                        labelText: 'Meal Name',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
+                    SizedBox(height: 10),
                     DropdownButtonFormField<String>(
                       value: _mealType,
                       items: ['Breakfast', 'Lunch', 'Dinner', 'Other']
@@ -277,162 +303,201 @@ class _DietRoutinePageState extends State<DietRoutinePage> {
                           _mealType = value!;
                         });
                       },
-                      decoration: InputDecoration(labelText: 'Meal Type'),
+                      decoration: InputDecoration(
+                        labelText: 'Meal Type',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
+                    SizedBox(height: 10),
                     TextFormField(
                       controller: _caloriesController,
-                      decoration: InputDecoration(labelText: 'Calories'),
+                      decoration: InputDecoration(
+                        labelText: 'Calories',
+                        border: OutlineInputBorder(),
+                      ),
                       keyboardType: TextInputType.number,
                     ),
+                    SizedBox(height: 10),
                     TextFormField(
                       controller: _carbsController,
-                      decoration: InputDecoration(labelText: 'Carbs'),
+                      decoration: InputDecoration(
+                        labelText: 'Carbs',
+                        border: OutlineInputBorder(),
+                      ),
                       keyboardType: TextInputType.number,
                     ),
+                    SizedBox(height: 10),
                     TextFormField(
                       controller: _fatController,
-                      decoration: InputDecoration(labelText: 'Fat'),
+                      decoration: InputDecoration(
+                        labelText: 'Fat',
+                        border: OutlineInputBorder(),
+                      ),
                       keyboardType: TextInputType.number,
                     ),
+                    SizedBox(height: 10),
                     TextFormField(
                       controller: _proteinController,
-                      decoration: InputDecoration(labelText: 'Protein'),
+                      decoration: InputDecoration(
+                        labelText: 'Protein',
+                        border: OutlineInputBorder(),
+                      ),
                       keyboardType: TextInputType.number,
                     ),
+                    SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: _addMeal,
-                      child: Text('Add Meal'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _getRandomColor(),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 30,
+                          vertical: 15,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      child: Text(
+                        'Add Meal',
+                        style: TextStyle(fontSize: 16),
+                      ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 30),
+              Text(
+                'Daily Summary',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: _getRandomColor(),
+                ),
+              ),
+              SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Column(
-                    children: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          CircularProgressIndicator(
-                            value: _dailyCalories > 0 ? 1 : 0,
-                            backgroundColor: Colors.grey[200],
-                            color: _getRandomColor(),
-                            strokeWidth: 12,
-                          ),
-                          Text(
-                            '$_dailyCalories',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Text('Calories')
-                    ],
+                  _buildCircularIndicator(
+                    label: 'Calories',
+                    value: _dailyCalories,
+                    color: _getRandomColor(),
                   ),
-                  Column(
-                    children: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          CircularProgressIndicator(
-                            value: _dailyCarbs > 0 ? 1 : 0,
-                            backgroundColor: Colors.grey[200],
-                            color: _getRandomColor(),
-                            strokeWidth: 12,
-                          ),
-                          Text(
-                            '$_dailyCarbs',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Text('Carbs')
-                    ],
+                  _buildCircularIndicator(
+                    label: 'Carbs',
+                    value: _dailyCarbs,
+                    color: _getRandomColor(),
                   ),
-                  Column(
-                    children: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          CircularProgressIndicator(
-                            value: _dailyFat > 0 ? 1 : 0,
-                            backgroundColor: Colors.grey[200],
-                            color: _getRandomColor(),
-                            strokeWidth: 12,
-                          ),
-                          Text(
-                            '$_dailyFat',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Text('Fat')
-                    ],
+                  _buildCircularIndicator(
+                    label: 'Fat',
+                    value: _dailyFat,
+                    color: _getRandomColor(),
                   ),
-                  Column(
-                    children: [
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          CircularProgressIndicator(
-                            value: _dailyProtein > 0 ? 1 : 0,
-                            backgroundColor: Colors.grey[200],
-                            color: _getRandomColor(),
-                            strokeWidth: 12,
-                          ),
-                          Text(
-                            '$_dailyProtein',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Text('Protein')
-                    ],
+                  _buildCircularIndicator(
+                    label: 'Protein',
+                    value: _dailyProtein,
+                    color: _getRandomColor(),
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 30),
+              Text(
+                'Meals',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: _getRandomColor(),
+                ),
+              ),
+              SizedBox(height: 10),
               ListView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 itemCount: _meals.length,
                 itemBuilder: (context, index) {
                   final meal = _meals[index];
-                  return ListTile(
-                    title: Text(
-                        '${meal['name']} (${meal['type']}) - ${meal['calories']} kcal'),
-                    subtitle: Text(
-                        'Carbs: ${meal['carbs']}g, Fat: ${meal['fat']}g, Protein: ${meal['protein']}g'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: () => _modifyMeal(index),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.delete),
-                          onPressed: () => _deleteMeal(index),
-                        ),
-                      ],
+                  return Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    elevation: 5,
+                    child: ListTile(
+                      title: Text(
+                        '${meal['name']} (${meal['type']}) - ${meal['calories']} kcal',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        'Carbs: ${meal['carbs']}g, Fat: ${meal['fat']}g, Protein: ${meal['protein']}g',
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.edit, color: _getRandomColor()),
+                            onPressed: () => _modifyMeal(index),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _deleteMeal(index),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 30),
               Text(
-                'Monthly Calories: $_monthlyCalories',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                'Monthly Calories',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: _getRandomColor(),
+                ),
+              ),
+              SizedBox(height: 10),
+              FadeTransition(
+                opacity: _animation,
+                child: Text(
+                  '$_monthlyCalories kcal',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCircularIndicator({
+    required String label,
+    required num value,
+    required Color color,
+  }) {
+    return Column(
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            CircularProgressIndicator(
+              value: value > 0 ? 1 : 0,
+              backgroundColor: Colors.grey[200],
+              color: color,
+              strokeWidth: 12,
+            ),
+            Text(
+              '$value',
+              style: TextStyle(fontSize: 20),
+            ),
+          ],
+        ),
+        SizedBox(height: 10),
+        Text(label)
+      ],
     );
   }
 }

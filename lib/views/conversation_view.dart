@@ -47,6 +47,7 @@ class ConversationListPage extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               title: const Text('Conversations'),
+              backgroundColor: Colors.red,
             ),
             body: StreamBuilder<QuerySnapshot>(
               stream: _chatService

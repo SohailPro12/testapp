@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:testapp/views/coach/usersearchprofile/user_profile_view.dart';
-import 'package:testapp/views/normal/hub_search/coach_hub.dart';
 
 class UsersListView extends StatelessWidget {
   const UsersListView({super.key});
@@ -10,7 +9,8 @@ class UsersListView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Coaches'),
+        title: const Text('Users'),
+        backgroundColor: Colors.red,
       ),
       body: const CoachList(),
     );

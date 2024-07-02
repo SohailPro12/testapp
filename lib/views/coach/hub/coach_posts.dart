@@ -65,6 +65,7 @@ class _YourPostsViewState extends State<YourPostsView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Posts'),
+        backgroundColor: Colors.red,
         actions: [
           IconButton(
             icon: const Icon(Icons.search),

@@ -73,6 +73,7 @@ class ChatPage extends StatelessWidget {
             return Text(snapshot.data ?? '');
           },
         ),
+        backgroundColor: Colors.blue,
       ),
       body: Column(
         children: [

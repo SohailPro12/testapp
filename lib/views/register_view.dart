@@ -111,6 +111,8 @@ class _RegisterViewState extends State<RegisterView> {
     }
   }
 
+  bool _isPasswordVisible = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,6 +156,7 @@ class _RegisterViewState extends State<RegisterView> {
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                     errorText: _usernameError ? 'Username already taken' : null,
+                    prefixIcon: const Icon(Icons.person, color: Colors.grey),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -172,12 +175,13 @@ class _RegisterViewState extends State<RegisterView> {
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10.0),
                     ),
+                    prefixIcon: const Icon(Icons.email, color: Colors.grey),
                   ),
                 ),
                 const SizedBox(height: 20),
                 TextField(
                   controller: _password,
-                  obscureText: true,
+                  obscureText: !_isPasswordVisible,
                   enableSuggestions: false,
                   autocorrect: false,
                   style: const TextStyle(color: Colors.black),
@@ -189,6 +193,20 @@ class _RegisterViewState extends State<RegisterView> {
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                      child: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                 ),
